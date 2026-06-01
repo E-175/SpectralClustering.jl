@@ -8,7 +8,7 @@ makedocs(;
     authors="Jens Eckert <j.eckert.1@campus.tu-berlin.de>",
     sitename="SpectralClustering.jl",
     format=Documenter.HTML(;
-        canonical="https://E-175.github.io/SpectralClustering.jl",
+        canonical="https://E-175.github.io/SpectralClustering",
         edit_link="main",
         assets=String[],
     ),
@@ -18,6 +18,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/E-175/SpectralClustering.jl",
+    repo="github.com/E-175/SpectralClustering",
     devbranch="main",
 )
