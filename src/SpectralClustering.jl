@@ -1,5 +1,7 @@
 module SpectralClustering
 
-# Write your package code here.
+export make_circles, make_moons, make_blobs
+
+include("DataGeneration.jl")
 
 end
