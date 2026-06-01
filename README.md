@@ -17,3 +17,8 @@ To install and use this package locally for development:
 using Pkg
 Pkg.develop(url="https://github.com/E-175/SpectralClustering")
 ```
+
+## Course Material
+
+- [Task Description PDF](course_material/SpecClust.pdf)
+- [Project Topic Details](course_material/ProjectTopic.png)
