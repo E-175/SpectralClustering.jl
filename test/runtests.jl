@@ -2,5 +2,5 @@ using SpectralClustering
 using Test
 
 @testset "SpectralClustering.jl" begin
-    # Write your tests here.
+    include("DataGenerationTests.jl")
 end
