@@ -19,12 +19,13 @@ function make_circles(n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.
         throw(ArgumentError("factor must be in [0, 1)"))
     end
 
+    # Split samples between the two circles
     n_samples_out = n_samples ÷ 2
     n_samples_in = n_samples - n_samples_out
 
     # Generate angles
-    linspace_out = 2 * pi * rand(n_samples_out)
-    linspace_in = 2 * pi * rand(n_samples_in)
+    linspace_out = range(0, stop=2*pi, length=n_samples_out)
+    linspace_in = range(0, stop=2*pi, length=n_samples_in)
 
     # Outer circle (radius 1)
     outer_circ_x = cos.(linspace_out)
@@ -34,9 +35,16 @@ function make_circles(n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.
     inner_circ_x = cos.(linspace_in) .* factor
     inner_circ_y = sin.(linspace_in) .* factor
 
-    X = vcat(vcat(outer_circ_x, inner_circ_x)', vcat(outer_circ_y, inner_circ_y)')
+    # Combine X and Y coordinates into a (2 × n_samples) matrix
+    X = vcat(
+        vcat(outer_circ_x, inner_circ_x)', # Row 1: X-coordinates
+        vcat(outer_circ_y, inner_circ_y)'  # Row 2: Y-coordinates
+    )
+
+    # Create target vector with class labels 1 (outer) and 2 (inner)
     y = vcat(fill(1, n_samples_out), fill(2, n_samples_in))
 
+    # Add Gaussian noise to the coordinates
     if noise > 0.0
         X .+= noise .* randn(size(X))
     end
@@ -58,21 +66,33 @@ Generate two interleaving half circles in 2D.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
 function make_moons(n_samples::Int=100; noise::Float64=0.0)
-    n_samples_out = n_samples ÷ 2
-    n_samples_in = n_samples - n_samples_out
 
-    linspace_out = pi * rand(n_samples_out)
-    linspace_in = pi * rand(n_samples_in)
+    # Split samples between the two moons
+    n_samples_upper = n_samples ÷ 2
+    n_samples_lower = n_samples - n_samples_upper
 
-    outer_circ_x = cos.(linspace_out)
-    outer_circ_y = sin.(linspace_out)
+    # Generate angles
+    linspace_upper = range(0, stop=pi, length=n_samples_upper)
+    linspace_lower = range(0, stop=pi, length=n_samples_lower)
 
-    inner_circ_x = 1.0 .- cos.(linspace_in)
-    inner_circ_y = 0.5 .- sin.(linspace_in)
+    # Upper moon (radius 1)
+    upper_moon_x = cos.(linspace_upper)
+    upper_moon_y = sin.(linspace_upper)
 
-    X = vcat(vcat(outer_circ_x, inner_circ_x)', vcat(outer_circ_y, inner_circ_y)')
-    y = vcat(fill(1, n_samples_out), fill(2, n_samples_in))
+    # Lower moon (radius 1, shifted down and right)
+    lower_moon_x = 1.0 .- cos.(linspace_lower)
+    lower_moon_y = 0.5 .- sin.(linspace_lower)
 
+    # Combine X and Y coordinates into a (2 × n_samples) matrix
+    X = vcat(
+        vcat(upper_moon_x, lower_moon_x)', # Row 1: X-coordinates
+        vcat(upper_moon_y, lower_moon_y)'  # Row 2: Y-coordinates
+    )
+
+    # Create target vector with class labels 1 (upper) and 2 (lower)
+    y = vcat(fill(1, n_samples_upper), fill(2, n_samples_lower))
+
+    # Add Gaussian noise to the coordinates
     if noise > 0.0
         X .+= noise .* randn(size(X))
     end
@@ -112,7 +132,10 @@ function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Float64=1.0
         n = n_per_cluster[c]
         end_idx = start_idx + n - 1
         
+        # Generate 'n' points normally distributed around the cluster's center
         X[:, start_idx:end_idx] .= center_pos[:, c] .+ cluster_std .* randn(2, n)
+        
+        # Assign cluster label 'c' to these points
         y[start_idx:end_idx] .= c
         
         start_idx = end_idx + 1
