@@ -1,6 +1,6 @@
 name = "SpectralClustering"
 uuid = "2a0a92e4-e091-4248-8ca0-e9870de5f652"
-authors = ["Jens Eckert <j.eckert.1@campus.tu-berlin.de>"]
+authors = ["Jens Eckert <j.eckert.1@campus.tu-berlin.de>", "Christoph Seidelmann <c.seidelmann@campus.tu-berlin.de>", "Carolin Witschonke <c.witschonke@campus.tu-berlin.de>", "Janus Trotzer <trotzer@campus.tu-berlin.de>"]
 version = "1.0.0-DEV"
 
 [compat]
