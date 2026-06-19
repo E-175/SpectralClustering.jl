@@ -114,15 +114,15 @@ Generate isotropic Gaussian blobs for clustering.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` to `centers`).
 """
-function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0)
+function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
     n_per_cluster = [n_samples ÷ centers for i in 1:centers]
     # Distribute the remainder
     for i in 1:(n_samples % centers)
         n_per_cluster[i] += 1
     end
 
-    # Generate random center positions in a box [-10, 10]
-    center_pos = 20.0 .* rand(2, centers) .- 10.0
+    # Generate random center positions in a box [center_box[1], center_box[2]]
+    center_pos = (center_box[2] - center_box[1]) .* rand(2, centers) .+ center_box[1]
 
     T = typeof(float(cluster_std))
     X = zeros(T, 2, n_samples)
