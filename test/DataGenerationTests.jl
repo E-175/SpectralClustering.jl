@@ -27,6 +27,21 @@ using Random
         X_noisy, _ = make_circles(n, factor=0.5, noise=0.1)
         @test size(X_noisy) == (2, n)
         @test X_noisy != X
+
+        @testset "Mixed float types in make_circles" begin
+            n = 100
+            # Float32 noise, Float64 factor
+            noise_f32 = 0.1f0
+            factor_f64 = 0.8
+
+            X, y = make_circles(n, noise=noise_f32, factor=factor_f64)
+
+            @test size(X) == (2, n)
+            @test length(y) == n
+
+            # Check that the resulting array type is Float64
+            @test eltype(X) == Float64
+    end
     end
 
     @testset "make_moons" begin

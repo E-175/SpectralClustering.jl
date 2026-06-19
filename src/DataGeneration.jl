@@ -14,7 +14,7 @@ Generate a large circle containing a smaller circle in 2D.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
-function make_circles(n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.8)
+function make_circles(n_samples::Int=100; noise::AbstractFloat=0.0, factor::AbstractFloat=0.8)
     if factor >= 1.0 || factor < 0.0
         throw(ArgumentError("factor must be in [0, 1)"))
     end
@@ -65,7 +65,7 @@ Generate two interleaving half circles in 2D.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
-function make_moons(n_samples::Int=100; noise::Float64=0.0)
+function make_moons(n_samples::Int=100; noise::AbstractFloat=0.0)
 
     # Split samples between the two moons
     n_samples_upper = n_samples ÷ 2
@@ -114,7 +114,7 @@ Generate isotropic Gaussian blobs for clustering.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` to `centers`).
 """
-function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Float64=1.0)
+function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0)
     n_per_cluster = [n_samples ÷ centers for i in 1:centers]
     # Distribute the remainder
     for i in 1:(n_samples % centers)
@@ -124,7 +124,8 @@ function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Float64=1.0
     # Generate random center positions in a box [-10, 10]
     center_pos = 20.0 .* rand(2, centers) .- 10.0
 
-    X = zeros(Float64, 2, n_samples)
+    T = typeof(float(cluster_std))
+    X = zeros(T, 2, n_samples)
     y = zeros(Int, n_samples)
 
     start_idx = 1
