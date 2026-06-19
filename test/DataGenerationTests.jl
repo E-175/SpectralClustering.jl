@@ -79,5 +79,17 @@ using Random
         # Odd number
         X, y = make_blobs(101, centers=3)
         @test length(y) == 101
+
+        # Test center_box bounds
+        custom_box = (50.0, 100.0)
+        X_box, _ = make_blobs(n, cluster_std=0.0, center_box=custom_box)
+        @test all(X_box .>= custom_box[1])
+        @test all(X_box .<= custom_box[2])
+
+        # Test with Integer Tuples
+        int_box = (-5, 5)
+        X_int_box, _ = make_blobs(n, cluster_std=0.0, center_box=int_box)
+        @test all(X_int_box .>= int_box[1])
+        @test all(X_int_box .<= int_box[2])
     end
 end
