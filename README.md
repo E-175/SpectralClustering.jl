@@ -11,12 +11,34 @@ A Julia package for performing non-convex and non-linearly separable spectral cl
 
 ## Getting Started
 
-To install and use this package locally for development:
+### Prerequisites
+
+- **Julia:** v1.11 or higher.
+
+### Installation
+
+To install and use this package locally for development, run the following in the Julia REPL:
 
 ```julia
 using Pkg
 Pkg.develop(url="https://github.com/E-175/SpectralClustering")
 ```
+
+### Usage
+
+Here is a quick example of how to load the package and generate a non-linearly separable dataset (e.g., interleaving half-moons):
+
+```julia
+using SpectralClustering
+
+# Generate 500 samples with some noise
+X, y = make_moons(500, noise=0.05)
+```
+
+## Demos
+
+The `demo/` directory contains scripts to showcase the package's capabilities:
+- `data_generation_demo.jl`: Demonstrates how to generate non-linearly separable datasets (e.g., concentric circles, moons).
 
 ## Course Material
 
