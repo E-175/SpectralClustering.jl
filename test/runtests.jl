@@ -1,7 +1,7 @@
 using SpectralClustering
 using Test
 
-@testset "SpectralClustering.jl" begin
-    include("DataGenerationTests.jl")
-    include("AffinityTests.jl")
+@testset verbose=true "SpectralClustering.jl" begin
+    include("test_datasets.jl")
+    include("test_affinity.jl")
 end

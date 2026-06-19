@@ -5,7 +5,7 @@ using SpectralClustering
     X = [0.0 1.0 3.0;
          0.0 0.0 0.0]
 
-    A = compute_affinity_matrix(X; sigma=1.0)
+    A = compute_affinity(X, RBFKernel(1.0))
 
     @test size(A) == (3, 3)
     @test A ≈ A'
@@ -35,7 +35,7 @@ end
     X = [0.0 1.0;
          0.0 0.0]
 
-    A = compute_affinity_matrix(X; sigma=1.0, self_affinity=1.0)
+    A = compute_affinity(X, RBFKernel(1.0); self_affinity=1.0)
 
     @test A[1, 1] == 1.0
     @test A[2, 2] == 1.0
@@ -45,14 +45,15 @@ end
     X = [0.0 1.0;
          0.0 0.0]
 
-    @test_throws ArgumentError compute_affinity_matrix(X; sigma=0.0)
-    @test_throws ArgumentError compute_affinity_matrix(X; sigma=-1.0)
+    @test_throws ArgumentError compute_affinity(X, RBFKernel(0.0))
+
+    @test_throws ArgumentError compute_affinity(X, RBFKernel(-1.0))
 end
 
 @testset "Affinity matrix works with generated data" begin
     X, y = make_moons(100; noise=0.05)
 
-    A = compute_affinity_matrix(X; sigma=1.0)
+    A = compute_affinity(X, RBFKernel(1.0))
 
     @test size(A) == (100, 100)
     @test A ≈ A'
