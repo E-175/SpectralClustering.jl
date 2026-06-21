@@ -14,9 +14,9 @@ computed as:
 
 where `σ` is defined in the `RBFKernel` struct.
 
-`X` is expected to have shape `n_features × n_samples`, meaning each column is one sample.
-
-# Keyword arguments
+# Arguments
+- `X`: Data matrix with shape `n_features × n_samples`. Each column is one sample.
+- `method`: RBF kernel configuration containing the width parameter `sigma`.
 - `self_affinity`: Value used on the diagonal of the affinity matrix.
 
 # Returns
