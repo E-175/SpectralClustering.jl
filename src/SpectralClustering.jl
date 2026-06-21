@@ -1,6 +1,7 @@
 module SpectralClustering
 
 using LinearAlgebra
+using Clustering
 
 # Export Types
 export AbstractAffinity, AbstractLaplacian, AbstractDiscretization
