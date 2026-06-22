@@ -2,6 +2,8 @@ module SpectralClustering
 
 using LinearAlgebra
 
+using Statistics
+
 # Export Types
 export AbstractAffinity, AbstractLaplacian, AbstractDiscretization
 export RBFKernel, LocalScaling
@@ -11,6 +13,7 @@ export KMeansDiscretization, SelfTuningDiscretization, SVDDiscretization
 # Export API and Data Generators
 export make_circles, make_moons, make_blobs
 export compute_affinity
+export discretize
 
 # Include Sub-files
 include("types.jl")
