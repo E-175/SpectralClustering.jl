@@ -43,7 +43,7 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
 
     # The rows of V correspond to samples.
     # The columns of V correspond to selected eigenvectors.
-    n_samples, n_eigenvectors = size(V)
+    n_eigenvectors, n_samples = size(V)
 
     # k must be meaningful for the number of available samples.
     1 <= k <= n_samples || throw(ArgumentError("k must be between 1 and the number of samples."))
