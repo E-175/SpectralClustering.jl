@@ -67,8 +67,7 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
     end
     
     # Clustering.kmeans expects data in the format features × samples.
-    # Our embedding uses samples × features, so we transpose it.
-    result = Clustering.kmeans(Matrix(embedding'), k)
+    result = Clustering.kmeans(Matrix(embedding), k)
 
     # Return one cluster label per sample.
     return Clustering.assignments(result)
