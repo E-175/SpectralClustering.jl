@@ -47,9 +47,41 @@ end
 # ---------------------------------------------------------
 # TODO: Jens (Self-Tuning)
 # ---------------------------------------------------------
+"""
+    compute_affinity(X, method::LocalScaling; self_affinity=0.0)
+
+Compute the local Scaling affinity matrix. The affinity between two samples `i` and `j` is 
+computed as:
+
+    exp(-d²(xᵢ,xⱼ) / σᵢσⱼ)
+
+where `σᵢ` is determined by measuring the distance from point sᵢ to its K-th nearest neighbor.
+
+`X` is expected to have shape `n_features × n_samples`, meaning each column is one sample.
+
+# Keyword arguments
+- `self_affinity`: Value used on the diagonal of the affinity matrix. Has to be 0.
+
+# Returns
+A symmetric `n_samples × n_samples` affinity matrix.
+"""
 function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity::Real=0.0)
+    self_affinity = 0.0 #self_affinity has to be 0
     k_neighbor = method.k
-    # TODO: Implement self-tuning affinity matrix
+    n = size(X, 2)
+    W = zeros(n, n)
     
-    # return W
+    for i in 1:n
+        W[i, i] = self_affinity
+    
+        for j in (i+1):n
+            sigmai = k_neighbor(X[i+1, j])
+            sigmaj = 1 #undefined
+            dist_sq = sum(abs2, X[:, i] .- X[:, j])
+            sim = exp(-dist_sq / (sigmai * sigmaj))
+            W[i, j] = sim
+            W[j, i] = sim # The affinity matrix is symmetric
+        end
+    end
+    return W
 end
