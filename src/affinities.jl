@@ -71,17 +71,46 @@ function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity
     n = size(X, 2)
     W = zeros(n, n)
     
-    for i in 1:n
-        W[i, i] = self_affinity
-    
-        for j in (i+1):n
-            sigmai = k_neighbor(X[i+1, j])
-            sigmaj = 1 #undefined
-            dist_sq = sum(abs2, X[:, i] .- X[:, j])
-            sim = exp(-dist_sq / (sigmai * sigmaj))
-            W[i, j] = sim
-            W[j, i] = sim # The affinity matrix is symmetric
+    #AI Generated: 
+    # Step 1: Precompute all pairwise squared distances
+    dist_sq = zeros(eltype(X), n, n)
+    for j in 1:n
+        for i in 1:n
+            dist_sq[i, j] = sum(abs2, X[:, i] .- X[:, j])
         end
     end
+    
+    # Step 2: Compute local scale (sigma) for each point
+    sigmas = zeros(eltype(X), n)
+    for i in 1:n
+        # Get actual distances (sqrt of squared distances) for point i
+        dists = sqrt.(dist_sq[:, i])
+        
+        # Sort distances to find the k-th neighbor
+        sorted_dists = sort(dists)
+        
+        # Index is k+1 because the 1st element is always the distance to itself (0.0)
+        neighbor_idx = min(k + 1, n)
+        sigmas[i] = sorted_dists[neighbor_idx]
+        
+        # Safety check: avoid division by zero if duplicate points exist
+        if sigmas[i] == 0.0
+            sigmas[i] = eps(Float64)
+        end
+    end
+    
+    # Step 3: Construct the final affinity matrix W
+    W = zeros(eltype(X), n, n)
+    for j in 1:n
+        for i in 1:n
+            if i == j
+                W[i, i] = self_affinity
+            else
+                # Using the exact formula from the paper: exp(-d^2 / (sigma_i * sigma_j))
+                W[i, j] = exp(-dist_sq[i, j] / (sigmas[i] * sigmas[j]))
+            end
+        end
+    end
+    
     return W
 end
