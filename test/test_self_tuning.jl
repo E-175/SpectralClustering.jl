@@ -1,5 +1,7 @@
 using Test
 using SpectralClustering
+import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, compute_affinity
+
 
 # =========================================================
 # Tests for LocalScaling Affinity Matrix
