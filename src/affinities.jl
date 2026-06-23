@@ -90,7 +90,7 @@ function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity
         sorted_dists = sort(dists)
         
         # Index is k+1 because the 1st element is always the distance to itself (0.0)
-        neighbor_idx = min(k_neighbor + 1, n)
+        neighbor_idx = min(k + 1, n)
         sigmas[i] = sorted_dists[neighbor_idx]
         
         # Safety check: avoid division by zero if duplicate points exist
