@@ -33,11 +33,11 @@ struct SymmetricLaplacian <: AbstractLaplacian end
 
 # DISCRETIZATION
 """ 
-    KMeansDiscretization(normalize_rows::Bool)
-If `normalize_rows` is true, eigenvectors are row-normalized before K-Means.
+    KMeansDiscretization(normalize_samples::Bool)
+If `normalize_samples` is true, eigenvectors are normalized per sample before K-Means.
 """
 struct KMeansDiscretization <: AbstractDiscretization 
-    normalize_rows::Bool
+    normalize_samples::Bool
 end
 
 """ Zelnik-Manor & Perona method (Automatic k, cost minimization) """

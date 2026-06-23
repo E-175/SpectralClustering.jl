@@ -9,18 +9,18 @@ end
 Discretize a spectral embedding into cluster labels using K-Means.
 
 The input matrix `V` is the eigenvector embedding produced by spectral clustering.
-Each row of `V` represents one sample, and each column represents one selected
+Each column of `V` represents one sample, and each row represents one selected
 eigenvector.
 
-K-Means is applied to the rows of `V`, so samples with similar coordinates in
+K-Means is applied to the columns of `V`, so samples with similar coordinates in
 the spectral embedding are assigned to the same cluster.
 
-If `method.normalize_rows` is `true`, each row of `V` is normalized to unit
+If `method.normalize_samples` is `true`, each column of `V` is normalized to unit
 length before K-Means is applied. This is used for variants such as the
 Ng-Jordan-Weiss normalized spectral clustering method.
 
 # Arguments
-- `V`: Spectral embedding matrix with one row per sample.
+- `V`: Spectral embedding matrix with one column per sample (features × samples).
 - `method`: K-Means discretization configuration.
 - `k`: Number of clusters.
 
@@ -36,9 +36,9 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
     # The K-Means expects a fixed number of clusters.
     isnothing(k) && throw(ArgumentError("K-Means requires a specific number of clusters 'k'."))
 
-    # The rows of V correspond to samples.
-    # The columns of V correspond to selected eigenvectors.
-    n_samples, n_eigenvectors = size(V)
+    # The columns of V correspond to samples.
+    # The rows of V correspond to selected eigenvectors.
+    n_eigenvectors, n_samples = size(V)
 
     # k must be meaningful for the number of available samples.
     1 <= k <= n_samples || throw(ArgumentError("k must be between 1 and the number of samples."))
@@ -49,21 +49,20 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
     # Work on a floating-point copy so the input matrix is not modified.
     embedding = Matrix{Float64}(V)
     
-    if method.normalize_rows
-        # Compute the Euclidean norm of each row.
+    if method.normalize_samples
+        # Compute the Euclidean norm of each column.
         # This measures the length of each embedded sample vector.
-        row_norms = sqrt.(sum(abs2, embedding, dims=2))
+        col_norms = sqrt.(sum(abs2, embedding, dims=1))
 
-        # A row with norm zero cannot be normalized.
-        all(row_norms .> 0) || throw(ArgumentError("Cannot normalize rows with zero norm."))
+        # A column with norm zero cannot be normalized.
+        all(col_norms .> 0) || throw(ArgumentError("Cannot normalize columns with zero norm."))
 
-        # Normalize every row to unit length.
-        embedding ./= row_norms
+        # Normalize every column to unit length.
+        embedding ./= col_norms
     end
     
     # Clustering.kmeans expects data in the format features × samples.
-    # Since embedding is samples × features (eigenvectors), we transpose it.
-    result = kmeans(Matrix(embedding)', k)
+    result = kmeans(embedding, k)
 
     # Return one cluster label per sample.
     return assignments(result)
