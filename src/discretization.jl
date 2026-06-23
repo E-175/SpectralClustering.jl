@@ -3,10 +3,6 @@ function discretize(V::AbstractMatrix, method::AbstractDiscretization; k::Union{
     error("Discretization method $(typeof(method)) is not implemented yet.")
 end
 
-# ---------------------------------------------------------
-# TODO: Christoph & Carolin (Standard & Normalized)
-# ---------------------------------------------------------
-
 """
     discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
 
@@ -36,14 +32,13 @@ A vector of cluster labels with one label per sample.
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 - `ArgumentError` if row normalization is requested and at least one row has norm zero.
 """
-
 function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
-    # K-Means needs a fixed number of clusters.
+    # The K-Means expects a fixed number of clusters.
     isnothing(k) && throw(ArgumentError("K-Means requires a specific number of clusters 'k'."))
 
     # The rows of V correspond to samples.
     # The columns of V correspond to selected eigenvectors.
-    n_eigenvectors, n_samples = size(V)
+    n_samples, n_eigenvectors = size(V)
 
     # k must be meaningful for the number of available samples.
     1 <= k <= n_samples || throw(ArgumentError("k must be between 1 and the number of samples."))
@@ -67,10 +62,11 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
     end
     
     # Clustering.kmeans expects data in the format features × samples.
-    result = Clustering.kmeans(Matrix(embedding), k)
+    # Since embedding is samples × features (eigenvectors), we transpose it.
+    result = kmeans(Matrix(embedding)', k)
 
     # Return one cluster label per sample.
-    return Clustering.assignments(result)
+    return assignments(result)
 end
 
 # ---------------------------------------------------------
@@ -78,6 +74,7 @@ end
 # ---------------------------------------------------------
 function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
     # TODO: Implement discretization for self tuning
+    error("Discretization method $(typeof(method)) is not implemented yet.")
 end
 
 # ---------------------------------------------------------
@@ -88,5 +85,5 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
         error("SVD Discretization requires a specific number of clusters 'k'.")
     end
     # TODO: Implement.
-    # return labels
+    error("Discretization method $(typeof(method)) is not implemented yet.")
 end
