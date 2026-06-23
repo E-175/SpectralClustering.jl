@@ -12,7 +12,7 @@ export KMeansDiscretization, SelfTuningDiscretization, SVDDiscretization
 
 # Export API and Data Generators
 export make_circles, make_moons, make_blobs
-export compute_affinity
+export compute_affinity, spectral_cluster, compute_laplacian, compute_eigenvectors, discretize
 
 # Include Sub-files
 include("types.jl")
