@@ -16,11 +16,11 @@ A Julia package for performing non-convex and non-linearly separable spectral cl
 
 ### Installation
 
-To install and use this package locally for development, run the following in the Julia REPL:
+To install and use this package locally, run the following in the Julia REPL:
 
 ```julia
 using Pkg
-Pkg.develop(url="https://github.com/E-175/SpectralClustering")
+] add https://github.com/E-175/SpectralClustering
 ```
 
 ### Usage
@@ -33,6 +33,8 @@ using SpectralClustering
 # Generate 500 samples with some noise
 X, y = make_moons(500, noise=0.05)
 ```
+
+TODO: Spectral Clustering Usage
 
 ## Demos
 
