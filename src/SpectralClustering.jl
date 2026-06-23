@@ -1,7 +1,8 @@
 module SpectralClustering
 
-using LinearAlgebra
-using Clustering
+using LinearAlgebra: eigen
+using Clustering: kmeans, assignments
+using Random
 
 # Export Types
 export AbstractAffinity, AbstractLaplacian, AbstractDiscretization
