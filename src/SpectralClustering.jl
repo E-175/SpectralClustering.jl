@@ -1,6 +1,6 @@
 module SpectralClustering
 
-using LinearAlgebra: eigen, norm, diagm
+using LinearAlgebra: eigen, norm, Diagonal
 
 using Statistics
 
