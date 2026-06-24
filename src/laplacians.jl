@@ -16,7 +16,7 @@ function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
 
     degrees = vec(sum(W, dims=2))
 
-    D = diagm(degrees)
+    D = Diagonal(degrees)
 
     L = D - W
 
