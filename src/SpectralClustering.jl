@@ -1,6 +1,6 @@
 module SpectralClustering
 
-using LinearAlgebra: eigen
+using LinearAlgebra: eigen, Diagonal, I
 using Clustering: kmeans, assignments
 using Random
 
