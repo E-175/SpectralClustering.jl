@@ -102,6 +102,17 @@ end
 function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
     # TODO: Compute Degree matrix D
     # TODO: return L_sym = I - D^{-1/2} W D^{-1/2}
-    error("Laplacian method $(typeof(method)) is not implemented yet.")
+    n, m = size(W)
 
+    n == m || throw(ArgumentError("Affinity matrix W must be square."))
+    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
+    any(<(0), W) && throw(ArgumentError("Affinity matrix W must not contain negative values."))
+
+    degrees = vec(sum(W, dims=2))
+    all(degrees .> 0) || throw(ArgumentError("SymmetricLaplacian is not defined for zero-degree nodes."))
+
+
+    DInverseSquareRoot = Diagonal(1 ./ sqrt.(degrees))
+    L_sym = I - DInverseSquareRoot * W * DInverseSquareRoot
+    return L_sym
 end
