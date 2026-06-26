@@ -87,6 +87,19 @@ discretization method by Yu and Shi (2003).
 
 The method computes a discrete solution closest to the continuous optima in an
 iterative fashion using singular value decomposition (SVD) and non-maximum suppression.
+
+# Arguments
+- `V`: Spectral embedding matrix with one column per sample (features × samples).
+- `method`: SVD discretization configuration.
+- `k`: Number of clusters.
+
+# Returns
+A vector of cluster labels with one label per sample.
+
+# Throws
+- `ArgumentError` if `k` is not provided.
+- `ArgumentError` if `k` does not equal the number of eigenvectors (rows) in `V`.
+- `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 """
 function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
     isnothing(k) && throw(ArgumentError("SVD Discretization requires a specific number of clusters 'k'."))
