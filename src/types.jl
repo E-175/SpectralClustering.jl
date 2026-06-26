@@ -9,7 +9,7 @@ abstract type AbstractDiscretization end
 Gaussian kernel for affinity. `sigma` must be positive.
 """
 Base.@kwdef struct RBFKernel <: AbstractAffinity 
-    sigma::Float64 = 1.0
+    sigma::Float64 = 0.1
 end
 
 """

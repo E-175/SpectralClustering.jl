@@ -1,45 +1,43 @@
-# SpectralClustering
+# SpectralClustering.jl (Group A)
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://E-175.github.io/SpectralClustering/dev/)
 [![Build Status](https://github.com/E-175/SpectralClustering/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/E-175/SpectralClustering/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/E-175/SpectralClustering/branch/main/graph/badge.svg)](https://codecov.io/gh/E-175/SpectralClustering)
 
+A Julia package for performing non-convex and non-linearly separable spectral clustering. This package is built with a highly modular pipeline, allowing you to seamlessly swap out different Affinities, Graph Laplacians, and Discretization algorithms.
 
-# SpectralClustering (Group A)
-A Julia package for performing non-convex and non-linearly separable spectral clustering.
+## Installation
 
-## Getting Started
-
-### Prerequisites
-
-- **Julia:** v1.11 or higher.
-
-### Installation
-
-To install and use this package locally, run the following in the Julia REPL:
+To install and use this package, run the following in the Julia REPL (press `]` to enter package mode):
 
 ```julia
-using Pkg
-] add https://github.com/E-175/SpectralClustering
+pkg> add https://github.com/E-175/SpectralClustering.jl
 ```
 
-### Usage
+## Quick Start
 
-Here is a quick example of how to load the package and generate a non-linearly separable dataset (e.g., interleaving half-moons):
+`SpectralClustering.jl` comes with synthetic dataset generators (`make_moons`, `make_circles`, `make_blobs`) so you can test algorithms right out of the box!
 
 ```julia
 using SpectralClustering
+using Plots
 
-# Generate 500 samples with some noise
-X, y = make_moons(500, noise=0.05)
+# 1. Generate 400 samples of non-linearly separable data
+X, y_true = make_moons(400, noise=0.05)
+
+# 2. Perform Spectral Clustering into 2 clusters
+y_pred = spectral_cluster(X, 2)
+
+# 3. Visualize the clustered results!
+scatter(X[1,:], X[2,:], group=y_pred, legend=false, title="Spectral Clustering")
 ```
 
-TODO: Spectral Clustering Usage
+For advanced usage (like customizing the `RBFKernel` bandwidth or using the `LocalScaling` affinity), check out our [Documentation](https://E-175.github.io/SpectralClustering/dev/)!
 
 ## Demos
 
-The `demo/` directory contains scripts to showcase the package's capabilities:
-- `data_generation_demo.jl`: Demonstrates how to generate non-linearly separable datasets (e.g., concentric circles, moons).
+The `demo/` directory contains scripts showcasing the package's capabilities:
+- `data_generation_demo.jl`: Demonstrates how to generate and visualize different synthetic datasets.
 
 ## Course Material
 
