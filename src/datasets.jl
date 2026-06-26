@@ -1,5 +1,3 @@
-using Random
-
 """
     make_circles(n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.8)
 
