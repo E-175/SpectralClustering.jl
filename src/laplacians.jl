@@ -9,11 +9,8 @@ end
 function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
     # TODO: Compute Degree matrix D
     # TODO: return L = D - W
+    error("Laplacian method $(typeof(method)) is not implemented yet.")
 end
-
-# ---------------------------------------------------------
-# TODO: Carolin (Normalized Cuts)
-# ---------------------------------------------------------
 
 """
     compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
@@ -56,7 +53,6 @@ The random-walk normalized Laplacian matrix `L_rw`.
 - `ArgumentError` if `W` contains negative affinity values.
 - `ArgumentError` if at least one node has degree zero.
 """
-
 function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
 
     # Get the number of rows and columns of the affinity matrix.
@@ -106,4 +102,6 @@ end
 function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
     # TODO: Compute Degree matrix D
     # TODO: return L_sym = I - D^{-1/2} W D^{-1/2}
+    error("Laplacian method $(typeof(method)) is not implemented yet.")
+
 end
