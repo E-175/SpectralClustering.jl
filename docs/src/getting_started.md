@@ -26,6 +26,8 @@ p2 = scatter(X[1,:], X[2,:], group=y_pred, title="Spectral Clustering", legend=f
 plot(p1, p2, layout=(1,2), size=(800, 400))
 ```
 
+*(Note: Because clustering is unsupervised, it assigns arbitrary integer labels to the groups it finds, meaning the predicted colors may appear swapped compared to the ground truth.)*
+
 ### Customizing the Algorithm
 
 You can customize the different steps of the spectral clustering algorithm (affinity matrix construction, graph laplacian type, and discretization method) by passing keyword arguments to the `spectral_cluster` function.
@@ -34,7 +36,7 @@ You can customize the different steps of the spectral clustering algorithm (affi
 # Using a different Laplacian and Kernel bandwidth
 y_pred_custom = spectral_cluster(
     X, 2;
-    affinity = RBFKernel(sigma=0.5),
+    affinity = RBFKernel(sigma=0.2),
     laplacian = RandomWalkLaplacian(),
     discretizer = KMeansDiscretization(true) # true for normalize_rows
 )
