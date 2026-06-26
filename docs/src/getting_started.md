@@ -10,9 +10,12 @@ Let's see how `SpectralClustering.jl` performs on the "moons" dataset.
 ```@example getting_started
 using SpectralClustering
 using Plots
+<<<<<<< HEAD
+using Random
 
 # 1. Generate a non-linearly separable dataset
-X, y_true = make_moons(400, noise=0.05)
+rng = Xoshiro(42)
+X, y_true = make_moons(rng, 400, noise=0.05)
 
 # 2. Perform Spectral Clustering
 # We expect 2 clusters (k=2)
@@ -23,9 +26,15 @@ y_pred = spectral_cluster(X, k)
 p1 = scatter(X[1,:], X[2,:], group=y_true, title="Ground Truth", legend=false, markersize=3)
 p2 = scatter(X[1,:], X[2,:], group=y_pred, title="Spectral Clustering", legend=false, markersize=3)
 
+<<<<<<< HEAD
+plot(p1, p2, layout=(1,2), size=(800, 400), margin=5Plots.mm)
+```
+
+=======
 plot(p1, p2, layout=(1,2), size=(800, 400))
 ```
 
+>>>>>>> 1bdd3cc (feat: inital setup for getting_started guide in docs)
 ### Customizing the Algorithm
 
 You can customize the different steps of the spectral clustering algorithm (affinity matrix construction, graph laplacian type, and discretization method) by passing keyword arguments to the `spectral_cluster` function.
@@ -34,7 +43,11 @@ You can customize the different steps of the spectral clustering algorithm (affi
 # Using a different Laplacian and Kernel bandwidth
 y_pred_custom = spectral_cluster(
     X, 2;
+<<<<<<< HEAD
+    affinity = RBFKernel(sigma=0.1),
+=======
     affinity = RBFKernel(sigma=0.5),
+>>>>>>> 1bdd3cc (feat: inital setup for getting_started guide in docs)
     laplacian = RandomWalkLaplacian(),
     discretizer = KMeansDiscretization(true) # true for normalize_rows
 )
