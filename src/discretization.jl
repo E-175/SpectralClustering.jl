@@ -102,6 +102,7 @@ of the normalized affinity matrix.
 A `Vector{Int}` of length `n_samples` containing the assigned cluster labels.
 """
 function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
+<<<<<<< HEAD
     n_samples, max_clusters = size(V)
     
     # Case 1: The user provided a specific 'k' (No self-tuning needed for number of clusters)
@@ -253,6 +254,10 @@ function get_cluster_assignments(Z::AbstractMatrix)
     end
     
     return labels
+=======
+    # TODO: Implement discretization for self tuning
+    error("Discretization method $(typeof(method)) is not implemented yet.")
+>>>>>>> a12275a (feat: inital setup for getting_started guide in docs)
 end
 
 # ---------------------------------------------------------
@@ -264,4 +269,8 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
     end
     # TODO: Implement.
     error("Discretization method $(typeof(method)) is not implemented yet.")
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> a12275a (feat: inital setup for getting_started guide in docs)
