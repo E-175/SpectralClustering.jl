@@ -10,9 +10,11 @@ Let's see how `SpectralClustering.jl` performs on the "moons" dataset.
 ```@example getting_started
 using SpectralClustering
 using Plots
+using Random
 
 # 1. Generate a non-linearly separable dataset
-X, y_true = make_moons(400, noise=0.05)
+rng = Xoshiro(42)
+X, y_true = make_moons(rng, 400, noise=0.05)
 
 # 2. Perform Spectral Clustering
 # We expect 2 clusters (k=2)
@@ -23,7 +25,7 @@ y_pred = spectral_cluster(X, k)
 p1 = scatter(X[1,:], X[2,:], group=y_true, title="Ground Truth", legend=false, markersize=3)
 p2 = scatter(X[1,:], X[2,:], group=y_pred, title="Spectral Clustering", legend=false, markersize=3)
 
-plot(p1, p2, layout=(1,2), size=(800, 400))
+plot(p1, p2, layout=(1,2), size=(800, 400), margin=5Plots.mm)
 ```
 
 *(Note: Because clustering is unsupervised, it assigns arbitrary integer labels to the groups it finds, meaning the predicted colors may appear swapped compared to the ground truth.)*
@@ -36,7 +38,7 @@ You can customize the different steps of the spectral clustering algorithm (affi
 # Using a different Laplacian and Kernel bandwidth
 y_pred_custom = spectral_cluster(
     X, 2;
-    affinity = RBFKernel(sigma=0.2),
+    affinity = RBFKernel(sigma=0.1),
     laplacian = RandomWalkLaplacian(),
     discretizer = KMeansDiscretization(true) # true for normalize_rows
 )

@@ -36,9 +36,11 @@ We threshold the matrix to only keep strong connections (e.g., $W_{ij} > 0.1$), 
 using SpectralClustering
 using Plots
 using GraphRecipes
+using Random
 
 # 1. Generate data
-X, y = make_moons(150, noise=0.05)
+rng = Xoshiro(42)
+X, y = make_moons(rng, 150, noise=0.05)
 
 # 2. Compute the affinity matrix using an RBF Kernel
 W = compute_affinity(X, RBFKernel(sigma=0.2))

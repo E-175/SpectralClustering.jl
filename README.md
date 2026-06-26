@@ -1,4 +1,4 @@
-# SpectralClustering.jl (Group A)
+# SpectralClustering.jl
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://E-175.github.io/SpectralClustering/dev/)
 [![Build Status](https://github.com/E-175/SpectralClustering/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/E-175/SpectralClustering/actions/workflows/CI.yml?query=branch%3Amain)
