@@ -1,9 +1,10 @@
 """
-    make_circles(n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.8)
+    make_circles([rng::AbstractRNG,] n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.8)
 
 Generate a large circle containing a smaller circle in 2D.
 
 # Arguments
+- `rng`: Optional random number generator (defaults to `Random.default_rng()`).
 - `n_samples`: Total number of points to generate (split equally between the two circles).
 - `noise`: Standard deviation of Gaussian noise added to the data.
 - `factor`: Scale factor between inner and outer circle (radius of inner circle / radius of outer circle).
@@ -12,7 +13,7 @@ Generate a large circle containing a smaller circle in 2D.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
-function make_circles(n_samples::Int=100; noise::AbstractFloat=0.0, factor::AbstractFloat=0.8)
+function make_circles(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat=0.0, factor::AbstractFloat=0.8)
     if factor >= 1.0 || factor < 0.0
         throw(ArgumentError("factor must be in [0, 1)"))
     end
@@ -44,18 +45,22 @@ function make_circles(n_samples::Int=100; noise::AbstractFloat=0.0, factor::Abst
 
     # Add Gaussian noise to the coordinates
     if noise > 0.0
-        X .+= noise .* randn(size(X))
+        X .+= noise .* randn(rng, size(X))
     end
 
     return X, y
 end
 
+# fallback wrapper if RNG is not provided
+make_circles(n_samples::Int=100; kwargs...) = make_circles(Random.default_rng(), n_samples; kwargs...)
+
 """
-    make_moons(n_samples::Int=100; noise::Float64=0.0)
+    make_moons([rng::AbstractRNG,] n_samples::Int=100; noise::Float64=0.0)
 
 Generate two interleaving half circles in 2D.
 
 # Arguments
+- `rng`: Optional random number generator (defaults to `Random.default_rng()`).
 - `n_samples`: Total number of points.
 - `noise`: Standard deviation of Gaussian noise.
 
@@ -63,7 +68,7 @@ Generate two interleaving half circles in 2D.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
-function make_moons(n_samples::Int=100; noise::AbstractFloat=0.0)
+function make_moons(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat=0.0)
 
     # Split samples between the two moons
     n_samples_upper = n_samples ÷ 2
@@ -92,27 +97,32 @@ function make_moons(n_samples::Int=100; noise::AbstractFloat=0.0)
 
     # Add Gaussian noise to the coordinates
     if noise > 0.0
-        X .+= noise .* randn(size(X))
+        X .+= noise .* randn(rng, size(X))
     end
 
     return X, y
 end
 
+# fallback wrapper if RNG is not provided
+make_moons(n_samples::Int=100; kwargs...) = make_moons(Random.default_rng(), n_samples; kwargs...)
+
 """
-    make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Float64=1.0)
+    make_blobs([rng::AbstractRNG,] n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
 
 Generate isotropic Gaussian blobs for clustering.
 
 # Arguments
+- `rng`: Optional random number generator (defaults to `Random.default_rng()`).
 - `n_samples`: Total number of points.
 - `centers`: Number of clusters.
 - `cluster_std`: Standard deviation of the clusters.
+- `center_box`: The bounding box `(min, max)` for generating random cluster centers.
 
 # Returns
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` to `centers`).
 """
-function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
+function make_blobs(rng::AbstractRNG, n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
     n_per_cluster = [n_samples ÷ centers for i in 1:centers]
     # Distribute the remainder
     for i in 1:(n_samples % centers)
@@ -120,7 +130,7 @@ function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, c
     end
 
     # Generate random center positions in a box [center_box[1], center_box[2]]
-    center_pos = (center_box[2] - center_box[1]) .* rand(2, centers) .+ center_box[1]
+    center_pos = (center_box[2] - center_box[1]) .* rand(rng, 2, centers) .+ center_box[1]
 
     T = typeof(float(cluster_std))
     X = zeros(T, 2, n_samples)
@@ -132,7 +142,7 @@ function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, c
         end_idx = start_idx + n - 1
         
         # Generate 'n' points normally distributed around the cluster's center
-        X[:, start_idx:end_idx] .= center_pos[:, c] .+ cluster_std .* randn(2, n)
+        X[:, start_idx:end_idx] .= center_pos[:, c] .+ cluster_std .* randn(rng, 2, n)
         
         # Assign cluster label 'c' to these points
         y[start_idx:end_idx] .= c
@@ -142,3 +152,6 @@ function make_blobs(n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, c
 
     return X, y
 end
+
+# fallback wrapper if RNG is not provided
+make_blobs(n_samples::Int=100; kwargs...) = make_blobs(Random.default_rng(), n_samples; kwargs...)
