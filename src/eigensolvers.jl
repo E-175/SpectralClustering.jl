@@ -11,8 +11,8 @@ The input `L` is expected to be a graph Laplacian or a normalized graph Laplacia
 - `k`: Number of eigenvectors to return.
 
 # Returns
-A matrix whose columns are the selected eigenvectors. The matrix has one row per
-sample and `k` columns.
+A matrix whose rows are the selected eigenvectors. The matrix has one column per
+sample and `k` rows (features × samples format).
 
 # Throws
 - `ArgumentError` if `L` is not square.
@@ -53,7 +53,7 @@ function compute_eigenvectors(L::AbstractMatrix, k::Int)
         throw(ArgumentError("Selected eigenvectors contain non-negligible imaginary parts."))
     end
 
-    # Return only the real part.
+    # Return only the real part and transpose to features × samples.
     # This keeps the output usable for the later K-Means step.
-    return real.(V)
+    return Matrix(real.(V)')
 end
