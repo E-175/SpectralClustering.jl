@@ -4,7 +4,7 @@ function compute_laplacian(W::AbstractMatrix, method::AbstractLaplacian)
 end
 
 """
-function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
+    function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
 
     Computes the unnormalized Laplacian of an input matrix `W`. 
     The unnormalized Laplacian is defined as:
