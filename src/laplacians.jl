@@ -6,12 +6,12 @@ end
 """
     function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
 
-    Computes the unnormalized Laplacian of an input matrix `W`. 
-    The unnormalized Laplacian is defined as:
-        L = D - W
-    with 
-        D being the degree Matrix with the degree of a node being the sum of all the (affinity) values in its row, and
-        W being the input Matrix (in our case the affinity Matrix) 
+Computes the unnormalized Laplacian of an input matrix `W`. 
+The unnormalized Laplacian is defined as:
+    L = D - W
+with 
+    D being the degree Matrix with the degree of a node being the sum of all the (affinity) values in its row, and
+    W being the input Matrix (in our case the affinity Matrix) 
 
 # Arguments
 - `W`: Input matrix. In our case an affinity Matrix in which entry W[i,j] describes how similar points i and j are
