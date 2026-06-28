@@ -12,7 +12,7 @@ makedocs(;
     sitename="SpectralClustering.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://E-175.github.io/SpectralClustering",
+        canonical="https://E-175.github.io/SpectralClustering.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -32,6 +32,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/E-175/SpectralClustering",
+    repo="github.com/E-175/SpectralClustering.jl",
     devbranch="main",
 )
