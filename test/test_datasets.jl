@@ -22,6 +22,8 @@ using Random
         # Test error for invalid factor
         @test_throws ArgumentError make_circles(n, factor=1.5)
         @test_throws ArgumentError make_circles(n, factor=-0.5)
+        # Test error for invalid n_samples
+        @test_throws ArgumentError make_circles(0)
 
         # Test noise addition
         X_noisy, _ = make_circles(n, factor=0.5, noise=0.1)
@@ -63,6 +65,9 @@ using Random
         X_noisy, _ = make_moons(n, noise=0.1)
         @test size(X_noisy) == (2, n)
         @test X_noisy != X
+
+        # Test error for invalid n_samples
+        @test_throws ArgumentError make_moons(0)
     end
 
     @testset "make_blobs" begin
@@ -91,5 +96,8 @@ using Random
         X_int_box, _ = make_blobs(n, cluster_std=0.0, center_box=int_box)
         @test all(X_int_box .>= int_box[1])
         @test all(X_int_box .<= int_box[2])
+
+        # Test error for invalid n_samples
+        @test_throws ArgumentError make_blobs(0)
     end
 end
