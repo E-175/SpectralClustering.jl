@@ -2,6 +2,93 @@ using Test
 using SpectralClustering
 import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, compute_affinity
 
+# =========================================================
+# Tests for Self-Tuning Discretization
+# =========================================================
+
+@testset "Self-Tuning Discretization Validation" begin
+    V = [1.0 0.0; 
+         0.0 1.0]
+    method = SelfTuningDiscretization()
+    
+    # Should throw an error because k=3 is greater than the 2 columns in V
+    @test_throws ArgumentError discretize(V, method; k=3)
+end
+
+@testset "Self-Tuning Discretization Fixed k" begin
+    # Perfect eigenvectors for 2 clusters
+    V = [1.0 0.0;
+         1.0 0.0;
+         0.0 1.0;
+         0.0 1.0]
+    
+    method = SelfTuningDiscretization()
+    labels = discretize(V, method; k=2)
+    
+    @test length(labels) == 4
+    # Points 1 and 2 should be in the same cluster
+    @test labels[1] == labels[2]
+    # Points 3 and 4 should be in the same cluster
+    @test labels[3] == labels[4]
+    # The two clusters should be different
+    @test labels[1] != labels[3]
+end
+
+@testset "Self-Tuning Discretization with Rotation Recovery" begin
+    # Perfect eigenvectors
+    V_perfect = [1.0 0.0;
+                 1.0 0.0;
+                 0.0 1.0;
+                 0.0 1.0]
+                 
+    # Mix the eigenvectors by applying a 45-degree rotation (pi/4)
+    theta = pi / 4
+    R_mix = [cos(theta) -sin(theta); 
+             sin(theta) cos(theta)]
+    V_mixed = V_perfect * R_mix
+    
+    method = SelfTuningDiscretization()
+    
+    # The optimization step should "un-rotate" the matrix and recover the clusters
+    labels = discretize(V_mixed, method; k=2)
+    
+    @test length(labels) == 4
+    @test labels[1] == labels[2]
+    @test labels[3] == labels[4]
+    @test labels[1] != labels[3]
+end
+
+@testset "Self-Tuning Discretization Automatic k (Self-Tuning)" begin
+    # Perfect eigenvectors for exactly 3 distinct clusters
+    V_perfect = [1.0 0.0 0.0;
+                 1.0 0.0 0.0;
+                 0.0 1.0 0.0;
+                 0.0 1.0 0.0;
+                 0.0 0.0 1.0;
+                 0.0 0.0 1.0]
+                 
+    # Real eigensolvers return a mixed orthogonal basis of the eigenspace.
+    # We simulate this reality by applying a 3x3 orthogonal mixing matrix Q.
+    Q = [ 1/sqrt(3)   1/sqrt(2)   1/sqrt(6);
+          1/sqrt(3)  -1/sqrt(2)   1/sqrt(6);
+          1/sqrt(3)   0.0        -2/sqrt(6)]
+         
+    V_mixed = V_perfect * Q
+         
+    method = SelfTuningDiscretization()
+    
+    # Do not provide k, forcing the algorithm to find the optimal k
+    labels = discretize(V_mixed, method)
+    
+    @test length(labels) == 6
+    # The algorithm should now correctly identify that there are exactly 3 clusters
+    @test length(unique(labels)) == 3
+    
+    # Check that the assignments are grouped correctly
+    @test labels[1] == labels[2]
+    @test labels[3] == labels[4]
+    @test labels[5] == labels[6]
+end
 
 # =========================================================
 # Tests for LocalScaling Affinity Matrix
@@ -97,85 +184,3 @@ end
     # Ensure diagonal was correctly enforced to 0 on the generated data
     @test all([A[i, i] == 0.0 for i in 1:100])
 end
-
-# =========================================================
-# Tests for Self-Tuning Discretization
-# =========================================================
-
-@testset "Self-Tuning Discretization Validation" begin
-    V = [1.0 0.0; 
-         0.0 1.0]
-    method = SelfTuningDiscretization()
-    
-    # Should throw an error because k=3 is greater than the 2 columns in V
-    @test_throws ArgumentError discretize(V, method; k=3)
-end
-
-@testset "Self-Tuning Discretization Fixed k" begin
-    # Perfect eigenvectors for 2 clusters
-    V = [1.0 0.0;
-         1.0 0.0;
-         0.0 1.0;
-         0.0 1.0]
-    
-    method = SelfTuningDiscretization()
-    labels = discretize(V, method; k=2)
-    
-    @test length(labels) == 4
-    # Points 1 and 2 should be in the same cluster
-    @test labels[1] == labels[2]
-    # Points 3 and 4 should be in the same cluster
-    @test labels[3] == labels[4]
-    # The two clusters should be different
-    @test labels[1] != labels[3]
-end
-
-@testset "Self-Tuning Discretization with Rotation Recovery" begin
-    # Perfect eigenvectors
-    V_perfect = [1.0 0.0;
-                 1.0 0.0;
-                 0.0 1.0;
-                 0.0 1.0]
-                 
-    # Mix the eigenvectors by applying a 45-degree rotation (pi/4)
-    theta = pi / 4
-    R_mix = [cos(theta) -sin(theta); 
-             sin(theta) cos(theta)]
-    V_mixed = V_perfect * R_mix
-    
-    method = SelfTuningDiscretization()
-    
-    # The optimization step should "un-rotate" the matrix and recover the clusters
-    labels = discretize(V_mixed, method; k=2)
-    
-    @test length(labels) == 4
-    @test labels[1] == labels[2]
-    @test labels[3] == labels[4]
-    @test labels[1] != labels[3]
-end
-
-@testset "Self-Tuning Discretization Automatic k (Self-Tuning)" begin
-    # Perfect eigenvectors for exactly 3 distinct clusters
-    # We provide 3 columns, so max_clusters = 3
-    V = [1.0 0.0 0.0;
-         1.0 0.0 0.0;
-         0.0 1.0 0.0;
-         0.0 1.0 0.0;
-         0.0 0.0 1.0;
-         0.0 0.0 1.0]
-         
-    method = SelfTuningDiscretization()
-    
-    # Do not provide k, forcing the algorithm to find the optimal k
-    labels = discretize(V, method)
-    
-    @test length(labels) == 6
-    # The algorithm should have correctly identified that there are exactly 3 clusters
-    @test length(unique(labels)) == 3
-    
-    # Check that the assignments are grouped correctly
-    @test labels[1] == labels[2]
-    @test labels[3] == labels[4]
-    @test labels[5] == labels[6]
-end
-

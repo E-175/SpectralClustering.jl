@@ -1,5 +1,6 @@
 using LinearAlgebra: I
 using Optim: optimize, BFGS, minimizer
+using ForwardDiff: gradient!
 
 # Fallback method
 function discretize(V::AbstractMatrix, method::AbstractDiscretization; k::Union{Int, Nothing}=nothing)
@@ -211,16 +212,21 @@ function optimize_rotation(V_subset::AbstractMatrix)
     initial_thetas = zeros(num_thetas)
     
     # The objective function to minimize
+    # The objective function to minimize
     function objective(thetas)
         R = make_rotation_matrix(thetas, c_clusters)
         Z = V_subset * R
         return calculate_alignment_cost(Z)
     end
     
-    # Use Optim.jl to find the optimal angles via Automatic Differentiation
-    result = optimize(objective, initial_thetas, BFGS(), autodiff=:forward)
+    # NEW: Define the gradient explicitly using ForwardDiff 
+    g!(G, thetas) = ForwardDiff.gradient!(G, objective, thetas)
+    
+    # NEW: Use Optim.jl by passing both the objective and the gradient directly (no autodiff kwarg)
+    result = optimize(objective, g!, initial_thetas, BFGS())
     
     best_thetas = minimizer(result)
+    
     R_opt = make_rotation_matrix(best_thetas, c_clusters)
     
     Z = V_subset * R_opt 
