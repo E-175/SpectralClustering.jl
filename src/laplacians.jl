@@ -15,13 +15,13 @@ function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
 
 # Arguments
 - `W`: Input matrix. In our case an affinity Matrix in which entry W[i,j] describes how similar points i and j are
-    W has to be square and symmetric and must not contain and negative values. It can however contain zero degree nodes.
+    W has to be square and symmetric and must not contain any negative values. It can however contain zero degree nodes.
 - `::UnnormalizedLaplacian`: Selects the unnormalized Laplacian.
     
 # Returns
 The unnormalized Laplacian `L`.
 
-The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of Matrix.
+The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of AbstractMatrix.
     In our implementation the function will always be called with an affinity matrix of type Matrix{Float64}.
     In such a case the output will also be of that type.
 
@@ -29,7 +29,6 @@ The specific type of the Laplacian depends on the type of the input matrix W. It
 - `ArgumentError` if `W` is not square.
 - `ArgumentError` if `W` is not symmetric.
 - `ArgumentError` if `W` contains negative values.
-
 - Does accept a matrix with zero degree nodes
 
 """
