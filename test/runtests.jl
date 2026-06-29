@@ -5,4 +5,6 @@ using Test
     include("test_datasets.jl")
     include("test_affinity.jl")
     include("test_laplacians.jl")
+    include("test_discretization.jl")
+    include("test_laplacian.jl")
 end
