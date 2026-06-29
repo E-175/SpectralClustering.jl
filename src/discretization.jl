@@ -77,12 +77,99 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
 end
 
 # ---------------------------------------------------------
-# TODO: Janus (Multi-Class)
+# SVD Discretization (Yu & Shi 2003)
 # ---------------------------------------------------------
+"""
+    discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
+
+Discretize a spectral embedding into cluster labels using the optimal multiclass
+discretization method by Yu and Shi (2003).
+
+The method computes a discrete solution closest to the continuous optima in an
+iterative fashion using singular value decomposition (SVD) and non-maximum suppression.
+
+# Arguments
+- `V`: Spectral embedding matrix with one column per sample (features × samples).
+- `method`: SVD discretization configuration.
+- `k`: Number of clusters.
+
+# Returns
+A vector of cluster labels with one label per sample.
+
+# Throws
+- `ArgumentError` if `k` is not provided.
+- `ArgumentError` if `k` does not equal the number of eigenvectors (rows) in `V`.
+- `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
+"""
 function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
-    if isnothing(k)
-        error("SVD Discretization requires a specific number of clusters 'k'.")
+    isnothing(k) && throw(ArgumentError("SVD Discretization requires a specific number of clusters 'k'."))
+    
+    n_eigenvectors, n_samples = size(V)
+    k == n_eigenvectors || throw(ArgumentError("SVD Discretization expects exactly `k` eigenvectors."))
+    1 <= k <= n_samples || throw(ArgumentError("k must be between 1 and the number of samples."))
+
+    # Z* is N x K. The input V is K x N.
+    Z_star = Matrix{Float64}(V')
+    
+    # Normalization (Step 3)
+    X_tilde_star = zeros(n_samples, k)
+    row_norms = sqrt.(sum(abs2, Z_star, dims=2))
+    for i in 1:n_samples
+        if row_norms[i] > 0
+            X_tilde_star[i, :] = Z_star[i, :] ./ row_norms[i]
+        end
     end
-    # TODO: Implement.
-    error("Discretization method $(typeof(method)) is not implemented yet.")
+
+    # Initialization of R* (Step 4)
+    R_star = zeros(k, k)
+    
+    # Pick a fixed starting row (e.g. 1) for reproducibility instead of random
+    initial_idx = 1
+    R_star[:, 1] = X_tilde_star[initial_idx, :]
+    
+    c = zeros(n_samples)
+    for j in 2:k
+        c .+= abs.(X_tilde_star * R_star[:, j-1])
+        idx = argmin(c)
+        R_star[:, j] = X_tilde_star[idx, :]
+    end
+
+    # Convergence variables
+    phi_star = 0.0
+    X_star = zeros(Int, n_samples, k)
+    labels = zeros(Int, n_samples)
+    
+    # Iterative Refinement (Steps 6-8)
+    while true
+        # Rotate continuous optima
+        X_tilde = X_tilde_star * R_star
+        
+        # Non-maximum suppression (Step 6)
+        fill!(X_star, 0)
+        for i in 1:n_samples
+            l = argmax(X_tilde[i, :])
+            labels[i] = l
+            X_star[i, l] = 1
+        end
+        
+        # SVD of X*^T \\tilde{X}* (Step 7)
+        svd_result = svd(X_star' * X_tilde_star)
+        
+        # Check convergence
+        phi = sum(svd_result.S)
+        if abs(phi - phi_star) < eps(Float64)
+            break
+        end
+        
+        phi_star = phi
+        
+        # Update R* = \\tilde{U} U^T
+        # Note: svd in Julia returns U, S, V where M = U * Diagonal(S) * V'
+        # Yu & Shi formula M = U \\Omega \\tilde{U}^T.
+        # Thus, their U is our U, their \\tilde{U} is our V.
+        # R* = \\tilde{U} U^T = V * U'
+        R_star = svd_result.V * svd_result.U'
+    end
+    
+    return labels
 end
