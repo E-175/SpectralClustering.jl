@@ -77,7 +77,7 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
 end
 
 # ---------------------------------------------------------
-# SVD Discretization (Yu & Shi 2003)
+# SVD Discretization (Yu & Shi 2003) - AI Generated
 # ---------------------------------------------------------
 """
     discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
