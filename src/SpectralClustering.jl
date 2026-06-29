@@ -1,8 +1,9 @@
 module SpectralClustering
 
-using LinearAlgebra: eigen, Diagonal, I, svd
+using LinearAlgebra: eigen, Diagonal, I, svd, norm
 using Clustering: kmeans, assignments
 using Random
+using Statistics: mean
 
 # Export Types
 export AbstractAffinity, AbstractLaplacian, AbstractDiscretization

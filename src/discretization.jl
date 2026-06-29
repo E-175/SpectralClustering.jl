@@ -40,6 +40,10 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
     # The K-Means expects a fixed number of clusters.
     isnothing(k) && throw(ArgumentError("K-Means requires a specific number of clusters 'k'."))
 
+    if !isnothing(method.seed)
+        Random.seed!(method.seed)
+    end
+
     # The columns of V correspond to samples.
     # The rows of V correspond to selected eigenvectors.
     n_eigenvectors, n_samples = size(V)
@@ -65,6 +69,34 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
         embedding ./= col_norms
     end
     
+
+    # Manual implementation of KMeans
+    if method.use_manual_implementation
+        timeout = 1000
+        currentCentroids = V[:,randperm(size(V,2))[1:k]]
+        nearestCentroids = zeros(Int,size(V,2))
+        for _ in 1:timeout
+            # Currently uses euclidian distance / L2 Norm
+            distancesMatrix = [norm(V[:,x] - currentCentroids[:,y]) for x = 1:size(V,2), y = 1:k]
+            newNearestCentroids = vec([i[2] for i in argmin(distancesMatrix,dims=2)])
+            if newNearestCentroids == nearestCentroids
+                break
+            else
+                nearestCentroids = newNearestCentroids
+            end
+            # Move Centroid of Cluster
+            for currentClusterIndex in 1:k
+                currentCluster = V[:,nearestCentroids .== currentClusterIndex]
+                if isempty(currentCluster)
+                    currentCentroids[:,currentClusterIndex] = V[:,rand(1:size(V,2))]
+                else
+                    currentCentroids[:,currentClusterIndex] = vec(mean(currentCluster,dims=2))
+                end
+            end
+        end
+        return nearestCentroids
+    end
+
     # Clustering.kmeans expects data in the format features × samples.
     result = kmeans(embedding, k)
 
