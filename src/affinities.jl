@@ -33,7 +33,7 @@ function compute_affinity(X::AbstractMatrix, method::RBFKernel; self_affinity::R
     for i in 1:n
         A[i, i] = self_affinity
         
-        for j in (i+1):n
+        @views for j in (i+1):n
             dist_sq = sum(abs2, X[:, i] .- X[:, j])
             sim = exp(-dist_sq / (2 * sigma^2))
             A[i, j] = sim
@@ -71,18 +71,17 @@ function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity
     n = size(X, 2)
     W = zeros(n, n)
     
-    #AI Generated: 
     # Step 1: Precompute all pairwise squared distances
     dist_sq = zeros(eltype(X), n, n)
     for j in 1:n
-        for i in 1:n
+        @views for i in 1:n
             dist_sq[i, j] = sum(abs2, X[:, i] .- X[:, j])
         end
     end
     
     # Step 2: Compute local scale (sigma) for each point
     sigmas = zeros(eltype(X), n)
-    for i in 1:n
+    @views for i in 1:n
         # Get actual distances (sqrt of squared distances) for point i
         dists = sqrt.(dist_sq[:, i])
         
@@ -101,14 +100,13 @@ function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity
     
     # Step 3: Construct the final affinity matrix W
     W = zeros(eltype(X), n, n)
-    for j in 1:n
-        for i in 1:n
-            if i == j
-                W[i, i] = self_affinity
-            else
-                # Using the exact formula from the paper: exp(-d^2 / (sigma_i * sigma_j))
-                W[i, j] = exp(-dist_sq[i, j] / (sigmas[i] * sigmas[j]))
-            end
+    for i in 1:n
+        W[i,i]  = self_affinity
+        for j in (i+1):n
+            # Using the exact formula from the paper: exp(-d^2 / (sigma_i * sigma_j))
+            sim = exp(-dist_sq[i, j] / (sigmas[i] * sigmas[j]))
+            W[i, j] = sim
+            W[j,i] = sim
         end
     end
     
