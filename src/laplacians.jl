@@ -1,162 +1,250 @@
-# Fallback method
-function compute_laplacian(W::AbstractMatrix, method::AbstractLaplacian)
-    error("Laplacian method $(typeof(method)) is not implemented yet.")
-end
+using Test
+using SpectralClustering
 
-# ---------------------------------------------------------
-# TODO: Christoph (Unnormalized)
-# ---------------------------------------------------------
-function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
-    # TODO: Compute Degree matrix D
-    # TODO: return L = D - W
-    error("Laplacian method $(typeof(method)) is not implemented yet.")
-end
 
-"""
-    compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
+@testset "Symmetric Laplacian" begin
+    A = [0.0 1.0 1.0;
+         1.0 0.0 1.0;
+         1.0 1.0 0.0]
 
-Compute the random-walk normalized graph Laplacian from an affinity matrix `W`.
+    B = [1.0 -0.5 -0.5;
+         -0.5 1.0 -0.5;
+         -0.5 -0.5 1.0]
 
-The random-walk normalized Laplacian is defined as
+    @test compute_laplacian(A,SymmetricLaplacian()) ≈ B
+    
 
-    L_rw = I - D⁻¹W
+    C = [1.0 0.0 0.0;
+         0.0 1.0 0.0;
+         0.0 0.0 1.0]
 
-where `W` is the affinity matrix and `D` is the degree matrix.
 
-This implementation is based on the normalized cuts formulation by Shi and Malik.
-Their paper formulates the problem as the generalized eigenvalue problem
+     D = [0.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 0.0]
 
-    (D - W)y = λDy
 
-with
+    @test compute_laplacian(C,SymmetricLaplacian()) ≈ D
 
-    L = D - W
+    #Non Square
+    E = [1.0 0.0 0.0;
+         0.0 1.0 0.0]
 
-Multiplying both sides by `D⁻¹` gives
+    @test_throws ArgumentError compute_laplacian(E,SymmetricLaplacian())
 
-    D⁻¹(D - W)y = λy
+     #Zero Degree
+    F = [1.0 0.0 1.0;
+         0.0 0.0 0.0;
+         1.0 0.0 1.0]
 
-and therefore
+   @test_throws ArgumentError compute_laplacian(F,SymmetricLaplacian())
 
-    (I - D⁻¹W)y = λy
+     #Negative Value
+    G = [-1.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
 
-# Arguments
-- `W`: Square symmetric affinity matrix. Entry `W[i, j]` stores the similarity between samples `i` and `j`.
-- `::RandomWalkLaplacian`: Selects the random-walk normalized Laplacian.
+   @test_throws ArgumentError compute_laplacian(G,SymmetricLaplacian())
 
-# Returns
-The random-walk normalized Laplacian matrix `L_rw`.
+     #Not symmetric
+    H = [1.0 0.0 1.0;
+         0.0 1.0 0.0;
+         0.0 0.0 1.0]
 
-# Throws
-- `ArgumentError` if `W` is not square.
-- `ArgumentError` if `W` is not symmetric.
-- `ArgumentError` if `W` contains negative affinity values.
-- `ArgumentError` if at least one node has degree zero.
-"""
-function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
 
-    # Get the number of rows and columns of the affinity matrix.
-    # A valid affinity matrix must compare every sample with every other sample.
-    n, m = size(W)
+   @test_throws ArgumentError compute_laplacian(H,SymmetricLaplacian())
 
-    # W must be square because the graph has one row and one column per sample.
-    n == m || throw(ArgumentError("Affinity matrix W must be square."))
 
-    # W must be symmetric because we model the similarities as an undirected graph.
-    # This means that the similarity from i to j must equal the similarity from j to i.
-    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
 
-    # Affinity values describe similarities.
-    # Negative similarities are not valid for this graph Laplacian.
-    any(<(0), W) && throw(ArgumentError("Affinity matrix W must not contain negative values."))
+    J = [0.0 16.0 35.0 67.0 13.0 17.0 49.0;
+         16.0 0.0 31.0 36.0 66.0 40.0 57.0;
+         35.0 31.0 0.0 33.0 79.0 57.0 35.0;
+         67.0 36.0 33.0 0.0 64.0 46.0 34.0;
+         13.0 66.0 79.0 64.0 0.0 53.0 48.0;
+         17.0 40.0 57.0 46.0 53.0 0.0 36.0;
+         49.0 57.0 35.0 34.0 48.0 36.0 0.0]
 
-    # Compute the degree of each node.
-    # The degree is the sum of all affinity values in one row.
-    degrees = vec(sum(W, dims=2))
+     
+     K = [1.0 -0.07268073591480126 -0.15175850835474114 -0.28527431679536136 -0.05153579477758927 -0.0767566717046357 -0.21692673761838976;
+     -0.07268073591480126 1.0 -0.1202852176047607 -0.13716898705776376 -0.2341397341059733 -0.16161912985516966 -0.22581740901226904;
+     -0.1517585083547411 -0.12028521760476069 1.0 -0.12001983962979582 -0.2675124187089514 -0.21983320925853073 -0.13235375898521928;
+     -0.28527431679536136 -0.13716898705776376 -0.12001983962979582 1.0 -0.21281375619376333 -0.1742124315708461 -0.12625541662100884;
+     -0.051535794777589274 -0.2341397341059733 -0.2675124187089515 -0.21281375619376333 1.0 -0.1868852108571645 -0.16595490543218622;
+     -0.0767566717046357 -0.16161912985516969 -0.21983320925853073 -0.17421243157084612 -0.18688521085716453 1.0 -0.14175975213276507;
+     -0.21692673761838976 -0.22581740901226902 -0.1323537589852193 -0.12625541662100884 -0.16595490543218622 -0.14175975213276507 1.0]
+     
+     @test compute_laplacian(J,SymmetricLaplacian()) ≈ K
 
-    # D⁻¹ is only defined if every degree is greater than zero.
-    # A zero degree would mean that a node has no connection to the graph.
-    all(degrees .> 0) || throw(ArgumentError("RandomWalkLaplacian is not defined for zero-degree nodes."))
 
-    # Initialize the result matrix.
-    # This matrix will contain L_rw = I - D⁻¹W.
-    Lrw = zeros(Float64, n, n)
 
-    # Build the matrix row by row.
-    # For D⁻¹W, every row i of W is divided by the degree of node i.
-    for i in 1:n
-        # Add the identity matrix part I.
-        Lrw[i, i] = 1.0
+     L = [0.0 2.0 1.0 3.0 2.0;
+          2.0 0.0 2.0 1.0 4.0;
+          1.0 2.0 0.0 2.0 3.0;
+          3.0 1.0 2.0 0.0 2.0;
+          2.0 4.0 3.0 2.0 0.0]
 
-        # Subtract the normalized affinity values.
-        # This gives L_rw[i, j] = I[i, j] - W[i, j] / degree[i].
-        for j in 1:n
-            Lrw[i, j] -= W[i, j] / degrees[i]
-        end
-    end
 
-    return Lrw
+     M = [1.0 -0.2357022603955158 -0.12499999999999999 -0.37499999999999994 -0.21320071635561041;
+     -0.2357022603955158 1.0 -0.2357022603955158 -0.1178511301977579 -0.40201512610368484;
+     -0.12499999999999999 -0.2357022603955158 1.0 -0.24999999999999997 -0.31980107453341566;
+     -0.37499999999999994 -0.1178511301977579 -0.24999999999999997 1.0 -0.21320071635561041;
+     -0.21320071635561041 -0.40201512610368484 -0.3198010745334156 -0.21320071635561041 1.0]      
+
+     @test compute_laplacian(L,SymmetricLaplacian()) ≈ M
 
 end
 
 
-"""
-    function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
+@testset "Symmetric Laplacian Part 2" begin
 
-    Computes the symmetric normalized Laplacian of an input matrix `W`. 
+A,B = make_circles()
+C = compute_affinity(A,RBFKernel())
+D = compute_laplacian(C,SymmetricLaplacian())
 
-    The symmetric normalized Laplacian is defined as:
+#Test Symmetry
+@test D ≈ D'
+#Diagonal of Laplacian should be all 1 as self-affinity is 0
+@test diag(D) ≈ ones(100)
+#Eigenvectors should compute
+@test compute_eigenvectors(D,2) isa AbstractMatrix
 
-        L_sym = I - D^{-1/2} W D^{-1/2}
+E,F = make_moons()
+G = compute_affinity(E,RBFKernel())
+H = compute_laplacian(G,SymmetricLaplacian())
 
-    with 
+#Test Symmetry
+@test H ≈ H'
+#Diagonal of Laplacian should be all 1 as self-affinity is 0
+@test diag(H) ≈ ones(100)
+#Eigenvectors should compute
+@test compute_eigenvectors(H,2) isa AbstractMatrix
 
-        D being the degree Matrix with the degree of a node being the sum of all the (affinity) values in its row and
-            D^{-1/2} being the square root of its inverse, and
+J,K = make_blobs()
+L = compute_affinity(J,RBFKernel())
+M = compute_laplacian(L,SymmetricLaplacian())
 
-        W being the input Matrix (in our case the affinity Matrix) 
+#Test Symmetry
+@test M ≈ M'
+#Diagonal of Laplacian should be all 1 as self-affinity is 0
+@test diag(M) ≈ ones(100)
+#Eigenvectors should compute    	
+@test compute_eigenvectors(M,3) isa AbstractMatrix
+   @test_throws ArgumentError compute_laplacian(H,SymmetricLaplacian())
 
+end
+
+
+
+@testset "Unnormalized Laplacian" begin
+    A = [0.0 1.0 1.0;
+         1.0 0.0 1.0;
+         1.0 1.0 0.0]
+
+    B = [2.0 -1.0 -1.0;
+         -1.0 2.0 -1.0;
+         -1.0 -1.0 2.0]
+
+    @test compute_laplacian(A,UnnormalizedLaplacian()) ≈ B
     
-# Arguments
-- `W`: Input matrix. In our case an affinity Matrix in which entry W[i,j] describes how similar points i and j are
-    W has to be square and symmetric and must not contain any negative values. Furthermore it must not contain zero degree nodes.
-- `::SymmetricLaplacian`: Selects the symmetric normalized Laplacian.
+
+    C = [1.0 0.0 0.0;
+         0.0 1.0 0.0;
+         0.0 0.0 1.0]
+
+
+     D = [0.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 0.0]
+
+
+         #Non Square
+    @test compute_laplacian(C,UnnormalizedLaplacian()) ≈ D
+
+    E = [1.0 0.0 0.0;
+         0.0 1.0 0.0]
+
+    @test_throws ArgumentError compute_laplacian(E,UnnormalizedLaplacian())
+
+
+    #Zero Degree
+    F = [1.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
+
+
+   @test compute_laplacian(F,UnnormalizedLaplacian()) ≈ D
+
+     #Negative Value
+    G = [-1.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
+
+   @test_throws ArgumentError compute_laplacian(G,UnnormalizedLaplacian())
+
+
+   #Not symmetric
+    H = [1.0 0.0 1.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
+
+   @test_throws ArgumentError compute_laplacian(H,UnnormalizedLaplacian())
+
+end
+
+
+
+@testset "Unnormalized Laplacian" begin
+    A = [0.0 1.0 1.0;
+         1.0 0.0 1.0;
+         1.0 1.0 0.0]
+
+    B = [2.0 -1.0 -1.0;
+         -1.0 2.0 -1.0;
+         -1.0 -1.0 2.0]
+
+    @test compute_laplacian(A,UnnormalizedLaplacian()) ≈ B
     
 
-
-# Returns
-The symmetric normalized Laplacian `L`.
-
-The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of AbstractMatrix.
-    In our implementation the function will always be called with an affinity matrix of type Matrix{Float64}.
-    In such a case the output will also be of that type.
-    
+    C = [1.0 0.0 0.0;
+         0.0 1.0 0.0;
+         0.0 0.0 1.0]
 
 
-# Throws
-- `ArgumentError` if `W` is not square.
-- `ArgumentError` if `W` is not symmetric.
-- `ArgumentError` if `W` contains negative values.
-- `ArgumentError` if `W` contains at least one zero degree node.
+     D = [0.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 0.0]
 
-"""
-function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
-    #Ensure that requirements for arguments are fulfilled
-    #Ensure that W is square
-    n, m = size(W)
-    n == m || throw(ArgumentError("Affinity matrix W must be square."))
-    #Ensure that W is symmetric
-    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
-    #Ensure that W does not contain negative values
-    any(<(0), W) && throw(ArgumentError("Affinity matrix W must not contain negative values."))
-    #Calculate the degree of each node. The degree of a node is the sum of all the values in its row.
-    degrees = vec(sum(W, dims=2))
-    #Ensure that there are no zero degree nodes
-    all(degrees .> 0) || throw(ArgumentError("SymmetricLaplacian is not defined for zero-degree nodes."))
 
-    #Calculate D^{-1/2}, with D being the degree Matrix
-    DInverseSquareRoot = Diagonal(1 ./ sqrt.(degrees))
-    #Calculate the symmetric normalized Laplacian L_sym as L_sym = I - D^{-1/2} W D^{-1/2}
-    L_sym = I - DInverseSquareRoot * W * DInverseSquareRoot
-    return L_sym
+         #Non Square
+    @test compute_laplacian(C,UnnormalizedLaplacian()) ≈ D
+
+    E = [1.0 0.0 0.0;
+         0.0 1.0 0.0]
+
+    @test_throws ArgumentError compute_laplacian(E,UnnormalizedLaplacian())
+
+
+    #Zero Degree
+    F = [1.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
+
+
+   @test compute_laplacian(F,UnnormalizedLaplacian()) ≈ D
+
+     #Negative Value
+    G = [-1.0 0.0 0.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
+
+   @test_throws ArgumentError compute_laplacian(G,UnnormalizedLaplacian())
+
+
+   #Not symmetric
+    H = [1.0 0.0 1.0;
+         0.0 0.0 0.0;
+         0.0 0.0 1.0]
+
+   @test_throws ArgumentError compute_laplacian(H,UnnormalizedLaplacian())
+
 end
