@@ -4,5 +4,7 @@ using Test
 @testset verbose=true "SpectralClustering.jl" begin
     include("test_datasets.jl")
     include("test_affinity.jl")
+    include("test_discretization.jl")
     include("test_laplacian.jl")
+    include("test_self_tuning.jl")
 end
