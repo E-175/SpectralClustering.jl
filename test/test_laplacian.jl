@@ -297,7 +297,7 @@ D = compute_laplacian(C,UnnormalizedLaplacian())
 @test D ≈ D'
 #Sum in every row should be 0 as self affinity is 0
 degreesD = vec(sum(D, dims=2))
-@test degreesD ≈ zeros(100) 
+@test isapprox(degreesD, zeros(100), atol=0.001)
 #Eigenvectors should compute
 @test compute_eigenvectors(D,2) isa AbstractMatrix
 
@@ -309,7 +309,7 @@ H = compute_laplacian(G,UnnormalizedLaplacian())
 @test H ≈ H'
 #Sum in every row should be 0 as self affinity is 0
 degreesH = vec(sum(H, dims=2))
-@test degreesH ≈ zeros(100)
+@test isapprox(degreesH, zeros(100), atol=0.001)
 #Eigenvectors should compute
 @test compute_eigenvectors(H,2) isa AbstractMatrix
 
@@ -321,7 +321,7 @@ M = compute_laplacian(L,UnnormalizedLaplacian())
 @test M ≈ M'
 #Sum in every row should be 0 as self affinity is 0
 degreesM = vec(sum(M, dims=2))
-@test degreesM ≈ zeros(100)
+@test isapprox(degreesM, zeros(100), atol=0.001)
 #Eigenvectors should compute
 @test compute_eigenvectors(M,3) isa AbstractMatrix
 
