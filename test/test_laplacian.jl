@@ -1,6 +1,8 @@
 using Test
 using SpectralClustering
-@testset "Symmetric Laplacian Part 1" begin
+
+
+@testset "Symmetric Laplacian" begin
     A = [0.0 1.0 1.0;
          1.0 0.0 1.0;
          1.0 1.0 0.0]
@@ -246,4 +248,3 @@ end
    @test_throws ArgumentError compute_laplacian(H,UnnormalizedLaplacian())
 
 end
-

@@ -139,7 +139,7 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
 end
 
 # ---------------------------------------------------------
-# Helper 1: The Cost Function (Equation 3 from the paper) | AI GENERATED
+# Helper 1: The Cost Function (Equation 3 from the paper)
 # ---------------------------------------------------------
 """
 Computes the alignment cost J = sum(Z_ij^2 / M_i^2)
@@ -163,7 +163,7 @@ function calculate_alignment_cost(Z::AbstractMatrix)
 end
 
 # ---------------------------------------------------------
-# Helper 1.5: Givens Rotation Builder | AI GENERATED
+# Helper 1.5: Givens Rotation Builder
 # ---------------------------------------------------------
 """
 Builds a c x c orthogonal rotation matrix from a vector of angles (thetas)
@@ -193,7 +193,7 @@ function make_rotation_matrix(thetas::AbstractVector{T}, c::Int) where T
 end
 
 # ---------------------------------------------------------
-# Helper 2: The Gradient Descent (Appendix A from the paper) | AI GENERATED
+# Helper 2: The Gradient Descent (Appendix A from the paper)
 # ---------------------------------------------------------
 """
 Finds the optimal rotation matrix R that aligns the columns of V_subset.
@@ -219,6 +219,7 @@ function optimize_rotation(V_subset::AbstractMatrix)
     end
     
     # Use Optim.jl to find the optimal angles via Automatic Differentiation
+    g!(G, thetas) = gradient!(G, objective, thetas)
     result = optimize(objective, g!, initial_thetas, BFGS())
     
     best_thetas = minimizer(result)
@@ -231,7 +232,7 @@ function optimize_rotation(V_subset::AbstractMatrix)
 end
 
 # ---------------------------------------------------------
-# Helper 3: Final Non-Maximum Suppression | AI GENERATED
+# Helper 3: Final Non-Maximum Suppression
 # ---------------------------------------------------------
 """
 Takes the optimally rotated matrix Z and assigns cluster labels.
