@@ -99,9 +99,64 @@ function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
 
 end
 
-function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
-    # TODO: Compute Degree matrix D
-    # TODO: return L_sym = I - D^{-1/2} W D^{-1/2}
-    error("Laplacian method $(typeof(method)) is not implemented yet.")
 
+"""
+    function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
+
+    Computes the symmetric normalized Laplacian of an input matrix `W`. 
+
+    The symmetric normalized Laplacian is defined as:
+
+        L_sym = I - D^{-1/2} W D^{-1/2}
+
+    with 
+
+        D being the degree Matrix with the degree of a node being the sum of all the (affinity) values in its row and
+            D^{-1/2} being the square root of its inverse, and
+
+        W being the input Matrix (in our case the affinity Matrix) 
+
+    
+# Arguments
+- `W`: Input matrix. In our case an affinity Matrix in which entry W[i,j] describes how similar points i and j are
+    W has to be square and symmetric and must not contain any negative values. Furthermore it must not contain zero degree nodes.
+- `::SymmetricLaplacian`: Selects the symmetric normalized Laplacian.
+    
+
+
+# Returns
+The symmetric normalized Laplacian `L`.
+
+The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of AbstractMatrix.
+    In our implementation the function will always be called with an affinity matrix of type Matrix{Float64}.
+    In such a case the output will also be of that type.
+    
+
+
+# Throws
+- `ArgumentError` if `W` is not square.
+- `ArgumentError` if `W` is not symmetric.
+- `ArgumentError` if `W` contains negative values.
+- `ArgumentError` if `W` contains at least one zero degree node.
+
+"""
+function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
+    #Ensure that requirements for arguments are fulfilled
+    #Ensure that W is square
+    n, m = size(W)
+    n == m || throw(ArgumentError("Affinity matrix W must be square."))
+    #Ensure that W is symmetric
+    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
+    #Ensure that W does not contain negative values
+    any(<(0), W) && throw(ArgumentError("Affinity matrix W must not contain negative values."))
+    #Calculate the degree of each node. The degree of a node is the sum of all the values in its row.
+    degrees = vec(sum(W, dims=2))
+    #Ensure that there are no zero degree nodes
+    all(degrees .> 0) || throw(ArgumentError("SymmetricLaplacian is not defined for zero-degree nodes."))
+
+    #Calculate D^{-1/2}, with D being the degree Matrix
+    DInverseSquareRoot = Diagonal(1 ./ sqrt.(degrees))
+    #Calculate the symmetric normalized Laplacian L_sym as L_sym = I - D^{-1/2} W D^{-1/2}
+    L_sym = I - DInverseSquareRoot * W * DInverseSquareRoot
+    return L_sym
 end
