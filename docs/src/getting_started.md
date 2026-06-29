@@ -45,3 +45,24 @@ y_pred_custom = spectral_cluster(
 
 scatter(X[1,:], X[2,:], group=y_pred_custom, title="Custom Spectral Clustering", legend=false, markersize=3)
 ```
+## Self-Tuning Spectral Clustering
+
+One of the biggest challenges in standard spectral clustering is manually choosing the global scale parameter (`sigma`) for the affinity matrix and guessing the correct number of clusters (`k`). 
+
+`SpectralClustering.jl` implements **Self-Tuning Spectral Clustering** (based on Zelnik-Manor & Perona, 2004), which solves both of these issues automatically:
+
+1. **Local Scaling (`LocalScaling`)**: Instead of a global `sigma`, it computes a local scale for each data point based on its distance to its `k`-th nearest neighbor. This allows the algorithm to perfectly handle data with multiple scales and varying densities.
+2. **Automatic Cluster Selection (`SelfTuningDiscretization`)**: It analyzes the structure of the eigenvectors to find an optimal rotation matrix. This completely eliminates the need for the K-Means step and automatically determines the optimal number of clusters.
+
+Here is how you can use the self-tuning features:
+
+```@example getting_started
+# We pass `nothing` for `k` so the algorithm finds the optimal number of clusters automatically!
+y_pred_selftuning = spectral_cluster(
+    X, 
+    nothing; 
+    affinity = LocalScaling(7), # 7 is a robust default for the k-th nearest neighbor
+    discretizer = SelfTuningDiscretization()
+)
+
+scatter(X[1,:], X[2,:], group=y_pred_selftuning, title="Self-Tuning Clustering", legend=false, markersize=3)

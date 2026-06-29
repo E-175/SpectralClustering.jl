@@ -6,4 +6,5 @@ using Test
     include("test_affinity.jl")
     include("test_discretization.jl")
     include("test_laplacian.jl")
+    include("test_self_tuning.jl")
 end
