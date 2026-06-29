@@ -219,7 +219,7 @@ function optimize_rotation(V_subset::AbstractMatrix)
     end
     
     # Use Optim.jl to find the optimal angles via Automatic Differentiation
-    result = optimize(objective, initial_thetas, BFGS(), autodiff=:forward)
+    result = optimize(objective, g!, initial_thetas, BFGS())
     
     best_thetas = minimizer(result)
     R_opt = make_rotation_matrix(best_thetas, c_clusters)
