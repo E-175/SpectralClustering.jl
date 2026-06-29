@@ -1,8 +1,9 @@
 module SpectralClustering
 
-using LinearAlgebra: eigen, norm, Diagonal
-
-using Statistics
+using LinearAlgebra: eigen, Diagonal, I, svd, norm
+using Clustering: kmeans, assignments
+using Random
+using Statistics: mean
 
 # Export Types
 export AbstractAffinity, AbstractLaplacian, AbstractDiscretization
@@ -12,8 +13,7 @@ export KMeansDiscretization, SelfTuningDiscretization, SVDDiscretization
 
 # Export API and Data Generators
 export make_circles, make_moons, make_blobs
-export compute_affinity
-export discretize
+export compute_affinity, spectral_cluster, compute_laplacian, compute_eigenvectors, discretize
 
 # Include Sub-files
 include("types.jl")
