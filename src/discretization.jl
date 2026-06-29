@@ -251,7 +251,7 @@ function get_cluster_assignments(Z::AbstractMatrix)
 end
 
 # ---------------------------------------------------------
-# SVD Discretization (Yu & Shi 2003)
+# SVD Discretization (Yu & Shi 2003) - AI Generated
 # ---------------------------------------------------------
 """
     discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
