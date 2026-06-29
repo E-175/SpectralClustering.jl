@@ -18,6 +18,10 @@ function make_circles(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat
         throw(ArgumentError("factor must be in [0, 1)"))
     end
 
+    if n_samples < 1
+        throw(ArgumentError("at least 1 sample must be generate"))
+    end
+
     # Split samples between the two circles
     n_samples_out = n_samples ÷ 2
     n_samples_in = n_samples - n_samples_out
@@ -69,7 +73,11 @@ Generate two interleaving half circles in 2D.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
 function make_moons(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat=0.0)
-
+    
+    if n_samples < 1
+        throw(ArgumentError("at least 1 sample must be generate"))
+    end
+    
     # Split samples between the two moons
     n_samples_upper = n_samples ÷ 2
     n_samples_lower = n_samples - n_samples_upper
@@ -123,6 +131,11 @@ Generate isotropic Gaussian blobs for clustering.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` to `centers`).
 """
 function make_blobs(rng::AbstractRNG, n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
+    
+    if n_samples < 1
+        throw(ArgumentError("at least 1 sample must be generate"))
+    end
+    
     n_per_cluster = [n_samples ÷ centers for i in 1:centers]
     # Distribute the remainder
     for i in 1:(n_samples % centers)
