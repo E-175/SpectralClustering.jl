@@ -1,8 +1,6 @@
 using Test
 using SpectralClustering
-
-
-@testset "Symmetric Laplacian" begin
+@testset "Symmetric Laplacian Part 1" begin
     A = [0.0 1.0 1.0;
          1.0 0.0 1.0;
          1.0 1.0 0.0]
