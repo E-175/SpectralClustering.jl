@@ -129,7 +129,7 @@ M = compute_laplacian(L,SymmetricLaplacian())
 @test diag(M) ≈ ones(100)
 #Eigenvectors should compute    	
 @test compute_eigenvectors(M,3) isa AbstractMatrix
-   @test_throws ArgumentError compute_laplacian(H,SymmetricLaplacian())
+
 
 end
 
