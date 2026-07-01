@@ -7,4 +7,6 @@ using Test
     include("test_discretization.jl")
     include("test_laplacians.jl")
     include("test_self_tuning.jl")
+    include("test_aqua.jl")
+
 end
