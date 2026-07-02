@@ -1,5 +1,6 @@
 using Test
 using SpectralClustering
+using Random
 
 
 @testset "Symmetric Laplacian Part 1" begin
@@ -97,7 +98,7 @@ end
 
 @testset "Symmetric Laplacian Part 2" begin
 
-A,B = make_circles()
+A,B = make_circles(MersenneTwister(101))
 C = compute_affinity(A,RBFKernel())
 D = compute_laplacian(C,SymmetricLaplacian())
 
@@ -108,7 +109,7 @@ D = compute_laplacian(C,SymmetricLaplacian())
 #Eigenvectors should compute
 @test compute_eigenvectors(D,2) isa AbstractMatrix
 
-E,F = make_moons()
+E,F = make_moons(MersenneTwister(102))
 G = compute_affinity(E,RBFKernel())
 H = compute_laplacian(G,SymmetricLaplacian())
 
@@ -119,7 +120,7 @@ H = compute_laplacian(G,SymmetricLaplacian())
 #Eigenvectors should compute
 @test compute_eigenvectors(H,2) isa AbstractMatrix
 
-J,K = make_blobs()
+J,K = make_blobs(MersenneTwister(103))
 L = compute_affinity(J,RBFKernel())
 M = compute_laplacian(L,SymmetricLaplacian())
 
@@ -232,7 +233,7 @@ end
 
 @testset "Unnormalized Laplacian Part 2" begin
 
-A,B = make_circles()
+A,B = make_circles(MersenneTwister(104))
 C = compute_affinity(A,RBFKernel())
 D = compute_laplacian(C,UnnormalizedLaplacian())
 
@@ -244,7 +245,7 @@ degreesD = vec(sum(D, dims=2))
 #Eigenvectors should compute
 @test compute_eigenvectors(D,2) isa AbstractMatrix
 
-E,F = make_moons()
+E,F = make_moons(MersenneTwister(105))
 G = compute_affinity(E,RBFKernel())
 H = compute_laplacian(G,UnnormalizedLaplacian())
 
@@ -256,7 +257,7 @@ degreesH = vec(sum(H, dims=2))
 #Eigenvectors should compute
 @test compute_eigenvectors(H,2) isa AbstractMatrix
 
-J,K = make_blobs()
+J,K = make_blobs(MersenneTwister(106))
 L = compute_affinity(J,RBFKernel())
 M = compute_laplacian(L,UnnormalizedLaplacian())
 

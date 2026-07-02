@@ -4,11 +4,10 @@ using LinearAlgebra
 using Random
 
 @testset "Data Generation" begin
-    Random.seed!(42)  # For reproducibility
-
     @testset "make_circles" begin
         n = 100
-        X, y = make_circles(n, factor=0.5, noise=0.0)
+        rng = MersenneTwister(42)
+        X, y = make_circles(rng, n, factor=0.5, noise=0.0)
         
         @test size(X) == (2, n)
         @test length(y) == n
@@ -26,7 +25,7 @@ using Random
         @test_throws ArgumentError make_circles(0)
 
         # Test noise addition
-        X_noisy, _ = make_circles(n, factor=0.5, noise=0.1)
+        X_noisy, _ = make_circles(MersenneTwister(43), n, factor=0.5, noise=0.1)
         @test size(X_noisy) == (2, n)
         @test X_noisy != X
 
@@ -36,7 +35,7 @@ using Random
             noise_f32 = 0.1f0
             factor_f64 = 0.8
 
-            X, y = make_circles(n, noise=noise_f32, factor=factor_f64)
+            X, y = make_circles(MersenneTwister(44), n, noise=noise_f32, factor=factor_f64)
 
             @test size(X) == (2, n)
             @test length(y) == n
@@ -48,7 +47,7 @@ using Random
 
     @testset "make_moons" begin
         n = 100
-        X, y = make_moons(n, noise=0.0)
+        X, y = make_moons(MersenneTwister(45), n, noise=0.0)
         
         @test size(X) == (2, n)
         @test length(y) == n
@@ -62,7 +61,7 @@ using Random
         @test all(X[2, y .== 2] .<= 0.5)
 
         # Test noise addition
-        X_noisy, _ = make_moons(n, noise=0.1)
+        X_noisy, _ = make_moons(MersenneTwister(46), n, noise=0.1)
         @test size(X_noisy) == (2, n)
         @test X_noisy != X
 
@@ -73,7 +72,7 @@ using Random
     @testset "make_blobs" begin
         n = 100
         centers = 4
-        X, y = make_blobs(n, centers=centers)
+        X, y = make_blobs(MersenneTwister(47), n, centers=centers)
         
         @test size(X) == (2, n)
         @test length(y) == n
@@ -82,18 +81,18 @@ using Random
         @test all(count(==(i), y) == 25 for i in 1:centers)
         
         # Odd number
-        X, y = make_blobs(101, centers=3)
+        X, y = make_blobs(MersenneTwister(48), 101, centers=3)
         @test length(y) == 101
 
         # Test center_box bounds
         custom_box = (50.0, 100.0)
-        X_box, _ = make_blobs(n, cluster_std=0.0, center_box=custom_box)
+        X_box, _ = make_blobs(MersenneTwister(49), n, cluster_std=0.0, center_box=custom_box)
         @test all(X_box .>= custom_box[1])
         @test all(X_box .<= custom_box[2])
 
         # Test with Integer Tuples
         int_box = (-5, 5)
-        X_int_box, _ = make_blobs(n, cluster_std=0.0, center_box=int_box)
+        X_int_box, _ = make_blobs(MersenneTwister(50), n, cluster_std=0.0, center_box=int_box)
         @test all(X_int_box .>= int_box[1])
         @test all(X_int_box .<= int_box[2])
 
