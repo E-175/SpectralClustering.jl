@@ -49,6 +49,7 @@ This package implements various spectral clustering algorithms based on the foll
 
 Artificial Intelligence tools were utilized during the development of this package in the following ways:
 - **Understanding and Research:** We asked questions to understand complex topics, mathematical foundations, and algorithms.
+- **Documentation:** AI assisted in creating parts of the documentation so we could provide comprehensive documentation within our limited development capacity.
 - **Code Review:** AI was used to review our own implementations.
 - **Testing:** AI assisted in finding edge cases and designing test scenarios.
 - **Architecture:** The general implementation structure and modular pipeline of the package were planned with the help of AI.
