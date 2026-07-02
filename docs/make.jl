@@ -28,7 +28,6 @@ makedocs(;
             "Discretization" => "manual/discretization.md",
         ],
         "API Reference" => "api.md",
-        "Getting Started" => "getting_started.md",
     ],
 )
 
