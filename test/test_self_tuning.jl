@@ -1,6 +1,6 @@
 using Test
 using SpectralClustering
-import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, compute_affinity
+import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, compute_affinity, optimize_rotation, calculate_alignment_cost
 
 # =========================================================
 # Tests for Self-Tuning Discretization
@@ -13,6 +13,15 @@ import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, c
     
     # Should throw an error because k=3 is greater than the 2 columns in V
     @test_throws ArgumentError discretize(V, method; k=3)
+end
+
+@testset "Self-Tuning rotation base case" begin
+    V_single = reshape([1.0, 0.5, -0.5, -1.0], :, 1)
+
+    Z, cost = optimize_rotation(V_single)
+
+    @test Z == V_single
+    @test cost ≈ calculate_alignment_cost(V_single)
 end
 
 @testset "Self-Tuning Discretization Fixed k" begin

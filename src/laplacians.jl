@@ -39,7 +39,7 @@ function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
     n,m = size(W)
     n == m || throw(ArgumentError("Affinity matrix W must be square."))
     #Ensure that W is symmetric
-    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
+    issymmetric(W) || throw(ArgumentError("Affinity matrix W must be symmetric."))
     #Ensure that W does not contain negative values
     any(<(0), W) && throw(ArgumentError("Affinity matrix W must not contain negative values."))
 
@@ -109,7 +109,7 @@ function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
 
     # W must be symmetric because we model the similarities as an undirected graph.
     # This means that the similarity from i to j must equal the similarity from j to i.
-    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
+    issymmetric(W) || throw(ArgumentError("Affinity matrix W must be symmetric."))
 
     # Affinity values describe similarities.
     # Negative similarities are not valid for this graph Laplacian.
@@ -191,7 +191,7 @@ function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
     n, m = size(W)
     n == m || throw(ArgumentError("Affinity matrix W must be square."))
     #Ensure that W is symmetric
-    W ≈ W' || throw(ArgumentError("Affinity matrix W must be symmetric."))
+    issymmetric(W) || throw(ArgumentError("Affinity matrix W must be symmetric."))
     #Ensure that W does not contain negative values
     any(<(0), W) && throw(ArgumentError("Affinity matrix W must not contain negative values."))
     #Calculate the degree of each node. The degree of a node is the sum of all the values in its row.

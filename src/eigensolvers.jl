@@ -31,13 +31,11 @@ function compute_eigenvectors(L::AbstractMatrix, k::Int)
     # We cannot request fewer than 1 eigenvector or more eigenvectors than samples.
     1 <= k <= n || throw(ArgumentError("k must be between 1 and the number of samples."))
 
-    # Solve the standard eigenvalue problem:
-    #     L * y = λ * y
-    #
-    # Important:
-    # We intentionally do not wrap L in Symmetric(L), because the random-walk
-    # normalized Laplacian L_rw = I - D⁻¹W is generally not symmetric.
-    decomposition = eigen(Matrix(L))
+    # Use the symmetric eigensolver when the input is symmetric.
+    # This keeps symmetric Laplacians on the numerically stable real-valued path,
+    # while still allowing non-symmetric random-walk Laplacians to use the
+    # general eigenvalue routine.
+    decomposition = L ≈ L' ? eigen(Symmetric(Matrix(L))) : eigen(Matrix(L))
 
     # Sort eigenvalues from smallest to largest.
     # Spectral clustering uses the eigenvectors belonging to the smallest eigenvalues.
