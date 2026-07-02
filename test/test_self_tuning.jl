@@ -1,5 +1,6 @@
 using Test
 using SpectralClustering
+using Random
 import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, compute_affinity, optimize_rotation, calculate_alignment_cost
 
 # =========================================================
@@ -179,7 +180,7 @@ end
 
 @testset "LocalScaling Affinity Matrix works with generated data" begin
     # Assuming make_moons is available in your test environment
-    X, y = make_moons(100; noise=0.05)
+    X, y = make_moons(MersenneTwister(52), 100; noise=0.05)
 
     # The paper suggests k=7 as a good default for local scaling
     method = LocalScaling(7)

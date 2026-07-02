@@ -1,5 +1,6 @@
 using SpectralClustering
 using Test
+using Random
 
 struct DummyDiscretization <: AbstractDiscretization end
 
@@ -70,7 +71,7 @@ struct DummyDiscretization <: AbstractDiscretization end
         method = SVDDiscretization()
         
         # Test input validation
-        V_dummy = rand(2, 5)
+        V_dummy = rand(MersenneTwister(21), 2, 5)
         
         # 1. Missing k
         @test_throws ArgumentError discretize(V_dummy, method)
@@ -79,7 +80,7 @@ struct DummyDiscretization <: AbstractDiscretization end
         @test_throws ArgumentError discretize(V_dummy, method; k=3)
         
         # 3. k out of bounds
-        @test_throws ArgumentError discretize(rand(6, 5), method; k=6)
+        @test_throws ArgumentError discretize(rand(MersenneTwister(22), 6, 5), method; k=6)
         
         # Test logic on a perfect block diagonal embedding
         # 4 samples, 2 clusters. First two belong to C1, last two belong to C2.

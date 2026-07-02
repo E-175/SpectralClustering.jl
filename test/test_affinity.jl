@@ -1,5 +1,6 @@
 using Test
 using SpectralClustering
+using Random
 
 @testset "Affinity matrix" begin
     X = [0.0 1.0 3.0;
@@ -51,7 +52,8 @@ end
 end
 
 @testset "Affinity matrix works with generated data" begin
-    X, y = make_moons(100; noise=0.05)
+    rng = MersenneTwister(42)
+    X, y = make_moons(rng, 100; noise=0.05)
 
     A = compute_affinity(X, RBFKernel(1.0))
 
