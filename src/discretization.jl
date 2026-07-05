@@ -37,6 +37,7 @@ A vector of cluster labels with one label per sample.
 - `ArgumentError` if row normalization is requested and at least one row has norm zero.
 """
 function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
+    Base.require_one_based_indexing(V)
     # The K-Means expects a fixed number of clusters.
     isnothing(k) && throw(ArgumentError("K-Means requires a specific number of clusters 'k'."))
 
@@ -105,10 +106,6 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
 end
 
 # ---------------------------------------------------------
-# TODO: Jens (Self-Tuning)
-# ---------------------------------------------------------
-
-# ---------------------------------------------------------
 # AI GENERATED
 # ---------------------------------------------------------
 """
@@ -134,6 +131,8 @@ of the normalized affinity matrix.
 A `Vector{Int}` of length `n_samples` containing the assigned cluster labels.
 """
 function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
+    Base.require_one_based_indexing(V)
+    
     n_samples, max_clusters = size(V)
     
     # Case 1: The user provided a specific 'k' (No self-tuning needed for number of clusters)
@@ -178,6 +177,8 @@ Computes the alignment cost J = sum(Z_ij^2 / M_i^2)
 where M_i is the maximum absolute value in row i of Z.
 """
 function calculate_alignment_cost(Z::AbstractMatrix)
+    Base.require_one_based_indexing(Z)
+    
     n_samples, c_clusters = size(Z)
     cost = zero(eltype(Z)) # Use zero(eltype) to support AutoDiff Dual numbers
     
@@ -201,7 +202,7 @@ end
 Builds a c x c orthogonal rotation matrix from a vector of angles (thetas)
 using Givens rotations.
 """
-function make_rotation_matrix(thetas::AbstractVector{T}, c::Int) where T
+function make_rotation_matrix(thetas::AbstractVector{T}, c::Integer) where T
     R = Matrix{T}(I, c, c)
     k = 1
     for i in 1:(c-1)
@@ -232,6 +233,8 @@ Finds the optimal rotation matrix R that aligns the columns of V_subset.
 Returns the rotated matrix Z and its alignment cost.
 """
 function optimize_rotation(V_subset::AbstractMatrix)
+    Base.require_one_based_indexing(V_subset)
+    
     n_samples, c_clusters = size(V_subset)
     
     # Base case: if there's only 1 cluster, no rotation is needed
@@ -271,6 +274,8 @@ Takes the optimally rotated matrix Z and assigns cluster labels.
 A point is assigned to cluster c if the maximum value in its row is at column c.
 """
 function get_cluster_assignments(Z::AbstractMatrix)
+    Base.require_one_based_indexing(Z)
+    
     n_samples = size(Z, 1)
     labels = zeros(Int, n_samples)
     
@@ -309,6 +314,8 @@ A vector of cluster labels with one label per sample.
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 """
 function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
+    Base.require_one_based_indexing(V)
+    
     isnothing(k) && throw(ArgumentError("SVD Discretization requires a specific number of clusters 'k'."))
     
     n_eigenvectors, n_samples = size(V)

@@ -1,5 +1,5 @@
 """
-    make_circles([rng::AbstractRNG,] n_samples::Int=100; noise::Float64=0.0, factor::Float64=0.8)
+    make_circles([rng::AbstractRNG,] n_samples::Integer=100; noise::Float64=0.0, factor::Float64=0.8)
 
 Generate a large circle containing a smaller circle in 2D.
 
@@ -13,7 +13,7 @@ Generate a large circle containing a smaller circle in 2D.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
-function make_circles(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat=0.0, factor::AbstractFloat=0.8)
+function make_circles(rng::AbstractRNG, n_samples::Integer=100; noise::AbstractFloat=0.0, factor::AbstractFloat=0.8)
     if factor >= 1.0 || factor < 0.0
         throw(ArgumentError("factor must be in [0, 1)"))
     end
@@ -56,10 +56,10 @@ function make_circles(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat
 end
 
 # fallback wrapper if RNG is not provided
-make_circles(n_samples::Int=100; kwargs...) = make_circles(Random.default_rng(), n_samples; kwargs...)
+make_circles(n_samples::Integer=100; kwargs...) = make_circles(Random.default_rng(), n_samples; kwargs...)
 
 """
-    make_moons([rng::AbstractRNG,] n_samples::Int=100; noise::Float64=0.0)
+    make_moons([rng::AbstractRNG,] n_samples::Integer=100; noise::Float64=0.0)
 
 Generate two interleaving half circles in 2D.
 
@@ -72,7 +72,7 @@ Generate two interleaving half circles in 2D.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` and `2`).
 """
-function make_moons(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat=0.0)
+function make_moons(rng::AbstractRNG, n_samples::Integer=100; noise::AbstractFloat=0.0)
     
     if n_samples < 1
         throw(ArgumentError("at least 1 sample must be generate"))
@@ -112,10 +112,10 @@ function make_moons(rng::AbstractRNG, n_samples::Int=100; noise::AbstractFloat=0
 end
 
 # fallback wrapper if RNG is not provided
-make_moons(n_samples::Int=100; kwargs...) = make_moons(Random.default_rng(), n_samples; kwargs...)
+make_moons(n_samples::Integer=100; kwargs...) = make_moons(Random.default_rng(), n_samples; kwargs...)
 
 """
-    make_blobs([rng::AbstractRNG,] n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
+    make_blobs([rng::AbstractRNG,] n_samples::Integer=100; centers::Integer=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
 
 Generate isotropic Gaussian blobs for clustering.
 
@@ -130,7 +130,7 @@ Generate isotropic Gaussian blobs for clustering.
 - `X`: A `2 × n_samples` Matrix of Float64.
 - `y`: A `n_samples` Vector of Int (cluster labels `1` to `centers`).
 """
-function make_blobs(rng::AbstractRNG, n_samples::Int=100; centers::Int=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
+function make_blobs(rng::AbstractRNG, n_samples::Integer=100; centers::Integer=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
     
     if n_samples < 1
         throw(ArgumentError("at least 1 sample must be generate"))
@@ -167,4 +167,4 @@ function make_blobs(rng::AbstractRNG, n_samples::Int=100; centers::Int=3, cluste
 end
 
 # fallback wrapper if RNG is not provided
-make_blobs(n_samples::Int=100; kwargs...) = make_blobs(Random.default_rng(), n_samples; kwargs...)
+make_blobs(n_samples::Integer=100; kwargs...) = make_blobs(Random.default_rng(), n_samples; kwargs...)

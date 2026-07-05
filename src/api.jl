@@ -4,7 +4,7 @@
 Perform spectral clustering on data matrix `X` into `k` clusters.
 `X` should be `n_features × n_samples`.
 """
-function spectral_cluster(X::AbstractMatrix, k::Int; 
+function spectral_cluster(X::AbstractMatrix, k::Integer; 
                           affinity::AbstractAffinity = RBFKernel(),
                           laplacian::AbstractLaplacian = RandomWalkLaplacian(),
                           discretizer::AbstractDiscretization = KMeansDiscretization(false))
