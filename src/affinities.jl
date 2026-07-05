@@ -23,6 +23,8 @@ where `σ` is defined in the `RBFKernel` struct.
 A symmetric `n_samples × n_samples` affinity matrix.
 """
 function compute_affinity(X::AbstractMatrix, method::RBFKernel; self_affinity::Real=0.0)
+    Base.require_one_based_indexing(X)
+    
     sigma = method.sigma
 
     sigma > 0 || throw(ArgumentError("sigma must be positive"))
@@ -33,8 +35,14 @@ function compute_affinity(X::AbstractMatrix, method::RBFKernel; self_affinity::R
     for i in 1:n
         A[i, i] = self_affinity
         
-        @views for j in (i+1):n
-            dist_sq = sum(abs2, X[:, i] .- X[:, j])
+        for j in (i+1):n
+            dist_sq = 0.0
+
+            @inbounds for r in axes(X, 1)
+                difference = X[r, i] - X[r, j]
+                dist_sq += abs2(difference)
+            end
+
             sim = exp(-dist_sq / (2 * sigma^2))
             A[i, j] = sim
             A[j, i] = sim # The affinity matrix is symmetric
@@ -44,9 +52,6 @@ function compute_affinity(X::AbstractMatrix, method::RBFKernel; self_affinity::R
     return A
 end
 
-# ---------------------------------------------------------
-# TODO: Jens (Self-Tuning)
-# ---------------------------------------------------------
 """
     compute_affinity(X, method::LocalScaling; self_affinity=0.0)
 
@@ -66,34 +71,47 @@ where `σᵢ` is determined by measuring the distance from point sᵢ to its K-t
 A symmetric `n_samples × n_samples` affinity matrix.
 """
 function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity::Real=0.0)
+    Base.require_one_based_indexing(X)
+    
     self_affinity = 0.0 #self_affinity has to be 0
     k_neighbor = method.k
     n = size(X, 2)
     W = zeros(n, n)
     
     # Step 1: Precompute all pairwise squared distances
-    dist_sq = zeros(eltype(X), n, n)
-    for j in 1:n
-        @views for i in 1:n
-            dist_sq[i, j] = sum(abs2, X[:, i] .- X[:, j])
+    dist_sq = zeros(float(eltype(X)), n, n)
+
+    for i in 1:n
+        for j in (i+1):n
+            distance = zero(eltype(dist_sq))
+
+            @inbounds for r in axes(X, 1)
+                difference = X[r, i] - X[r, j]
+                distance += abs2(difference)
+            end
+
+            dist_sq[i, j] = distance
+            dist_sq[j, i] = distance
         end
     end
     
     # Step 2: Compute local scale (sigma) for each point
     sigmas = zeros(eltype(X), n)
     @views for i in 1:n
-        # Get actual distances (sqrt of squared distances) for point i
-        dists = sqrt.(dist_sq[:, i])
-        
-        # Sort distances to find the k-th neighbor
-        sorted_dists = sort(dists)
+        # Copy the squared distances from point i to all other points.
+        column_distances = copy(view(dist_sq, :, i))
         
         # Index is k+1 because the 1st element is always the distance to itself (0.0)
         neighbor_idx = min(k_neighbor + 1, n)
-        sigmas[i] = sorted_dists[neighbor_idx]
+
+        # Find the k-th nearest neighbor using squared distances.
+        kth_dist_sq = partialsort!(column_distances, neighbor_idx)
+
+        # Store the actual distance as sigma.
+        sigmas[i] = sqrt(kth_dist_sq)
         
         # Safety check: avoid division by zero if duplicate points exist
-        if sigmas[i] == 0.0
+        if sigmas[i] == 0.0s
             sigmas[i] = eps(Float64)
         end
     end
