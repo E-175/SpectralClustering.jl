@@ -27,10 +27,8 @@ end
 
 @testset "Self-Tuning Discretization Fixed k" begin
     # Perfect eigenvectors for 2 clusters
-    V = [1.0 0.0;
-         1.0 0.0;
-         0.0 1.0;
-         0.0 1.0]
+    V = [1.0  1.0  0.0  0.0; 
+        0.0  0.0  1.0  1.0]
     
     method = SelfTuningDiscretization()
     labels = discretize(V, method; k=2)
@@ -46,10 +44,8 @@ end
 
 @testset "Self-Tuning Discretization with Rotation Recovery" begin
     # Perfect eigenvectors
-    V_perfect = [1.0 0.0;
-                 1.0 0.0;
-                 0.0 1.0;
-                 0.0 1.0]
+    V = [1.0  1.0  0.0  0.0; 
+        0.0  0.0  1.0  1.0]
                  
     # Mix the eigenvectors by applying a 45-degree rotation (pi/4)
     theta = pi / 4
@@ -70,12 +66,9 @@ end
 
 @testset "Self-Tuning Discretization Automatic k (Self-Tuning)" begin
     # Perfect eigenvectors for exactly 3 distinct clusters
-    V_perfect = [1.0 0.0 0.0;
-                 1.0 0.0 0.0;
-                 0.0 1.0 0.0;
-                 0.0 1.0 0.0;
-                 0.0 0.0 1.0;
-                 0.0 0.0 1.0]
+    V_perfect=[1.0 1.0 0.0 0.0 0.0 0.0;
+                0.0 0.0 1.0 1.0 0.0 0.0;
+                0.0 0.0 0.0 0.0 1.0 1.0]
                  
     # Real eigensolvers return a mixed orthogonal basis of the eigenspace.
     # We simulate this reality by applying a 3x3 orthogonal mixing matrix Q.

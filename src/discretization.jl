@@ -134,14 +134,16 @@ of the normalized affinity matrix.
 A `Vector{Int}` of length `n_samples` containing the assigned cluster labels.
 """
 function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
-    n_samples, max_clusters = size(V)
+    # Transpose V from (features × samples) to (samples × features)
+    V_work = copy(V')
+    n_samples, max_clusters = size(V_work)
     
     # Case 1: The user provided a specific 'k' (No self-tuning needed for number of clusters)
     if !isnothing(k)
         if k > max_clusters
             throw(ArgumentError("k cannot be larger than the number of eigenvectors provided in V"))
         end
-        V_subset = V[:, 1:k]
+        V_subset = V_work[:, 1:k]
         Z, _ = optimize_rotation(V_subset)
         return get_cluster_assignments(Z)
     end
@@ -153,7 +155,7 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
     
     # The paper suggests checking all possible cluster numbers up to max_clusters
     for current_k in 2:max_clusters
-        V_subset = V[:, 1:current_k]
+        V_subset = V_work[:, 1:current_k]
         
         # Optimize rotation for this specific number of clusters
         Z, cost = optimize_rotation(V_subset)
