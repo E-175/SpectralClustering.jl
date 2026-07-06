@@ -17,8 +17,10 @@ import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, c
 end
 
 @testset "Self-Tuning rotation base case" begin
+    #We pass a single coloumn as eigenvallue Vector
     V_single = reshape([1.0, 0.5, -0.5, -1.0], :, 1)
-
+    
+    #optimize rotation reconize that it is just one cluster, for rotating we need at least 2 Dimensions
     Z, cost = optimize_rotation(V_single)
 
     @test Z == V_single
@@ -54,6 +56,10 @@ end
     V_mixed = V_perfect * R_mix
     
     method = SelfTuningDiscretization()
+    #1.  optimize_rotation takes this messy V_mixed.
+    #2.  It sets up an objective function to minimize calculate_alignment_cost.
+    #3.  The gradient descent algorithm tweaks the angles until it finds the exact inverse of your 45-degree rotation.
+    #4.  It applies this inverse rotation, turning the messy decimals back into the perfect 1s and 0s, and perfectly assigns the labels.
     
     # The optimization step should "un-rotate" the matrix and recover the clusters
     labels = discretize(V_mixed, method; k=2)
@@ -82,6 +88,14 @@ end
     
     # Do not provide k, forcing the algorithm to find the optimal k
     labels = discretize(V_mixed, method)
+    #1. The function enters the "Self-Tuning" block.  
+    #2. It starts a loop: for current_k in 2:max_clusters.  
+    #3. Iteration 1 ($k=2$): It grabs the first 2 columns, optimizes the rotation, and calculates the cost. 
+    #4. The cost is high because forcing 3 distinct clusters into 2 dimensions creates overlap.  
+    #5. Iteration 2 ($k=3$): It grabs all 3 columns, optimizes the rotation, and perfectly recovers the original axes. 
+    #6. The cost drops significantly.  
+    #7. It compares the costs, sees that $k=3$ is the lowest, and saves best_Z as the 3D un-rotated matrix.  
+    #8. It returns the final labels based on this optimally sized, optimally rotated matrix.
     
     @test length(labels) == 6
     # The algorithm should now correctly identify that there are exactly 3 clusters
@@ -106,7 +120,9 @@ end
     
     A = compute_affinity(X, method)
 
+    #Affinity should be square
     @test size(A) == (3, 3)
+    #and square symmetric
     @test A ≈ A'
 
     # Diagonal must be 0.0 as hardcoded in the function
