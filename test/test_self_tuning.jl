@@ -46,14 +46,14 @@ end
 
 @testset "Self-Tuning Discretization with Rotation Recovery" begin
     # Perfect eigenvectors
-    V = [1.0  1.0  0.0  0.0; 
-        0.0  0.0  1.0  1.0]
+    V_perfect = [1.0  1.0  0.0  0.0; 
+                0.0  0.0  1.0  1.0]
                  
     # Mix the eigenvectors by applying a 45-degree rotation (pi/4)
     theta = pi / 4
     R_mix = [cos(theta) -sin(theta); 
              sin(theta) cos(theta)]
-    V_mixed = V_perfect * R_mix
+    V_mixed = R_mix * V_perfect
     
     method = SelfTuningDiscretization()
     #1.  optimize_rotation takes this messy V_mixed.
@@ -76,13 +76,19 @@ end
                 0.0 0.0 1.0 1.0 0.0 0.0;
                 0.0 0.0 0.0 0.0 1.0 1.0]
                  
-    # Real eigensolvers return a mixed orthogonal basis of the eigenspace.
-    # We simulate this reality by applying a 3x3 orthogonal mixing matrix Q.
-    Q = [ 1/sqrt(3)   1/sqrt(2)   1/sqrt(6);
-          1/sqrt(3)  -1/sqrt(2)   1/sqrt(6);
-          1/sqrt(3)   0.0        -2/sqrt(6)]
+    theta = pi / 12  # Exactly 15 degrees
+    
+    R_y = [cos(theta)  0  sin(theta);
+           0           1  0         ;
+          -sin(theta)  0  cos(theta)]
+          
+    R_z = [cos(theta) -sin(theta)  0;
+           sin(theta)  cos(theta)  0;
+           0           0           1]
+           
+    Q = R_y * R_z
          
-    V_mixed = V_perfect * Q
+    V_mixed = Q * V_perfect 
          
     method = SelfTuningDiscretization()
     
@@ -98,7 +104,6 @@ end
     #8. It returns the final labels based on this optimally sized, optimally rotated matrix.
     
     @test length(labels) == 6
-    # The algorithm should now correctly identify that there are exactly 3 clusters
     @test length(unique(labels)) == 3
     
     # Check that the assignments are grouped correctly
