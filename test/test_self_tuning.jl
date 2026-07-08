@@ -17,8 +17,10 @@ import SpectralClustering: discretize, SelfTuningDiscretization, LocalScaling, c
 end
 
 @testset "Self-Tuning rotation base case" begin
+    #We pass a single coloumn as eigenvallue Vector
     V_single = reshape([1.0, 0.5, -0.5, -1.0], :, 1)
-
+    
+    #optimize rotation reconize that it is just one cluster, for rotating we need at least 2 Dimensions
     Z, cost = optimize_rotation(V_single)
 
     @test Z == V_single
@@ -27,10 +29,8 @@ end
 
 @testset "Self-Tuning Discretization Fixed k" begin
     # Perfect eigenvectors for 2 clusters
-    V = [1.0 0.0;
-         1.0 0.0;
-         0.0 1.0;
-         0.0 1.0]
+    V = [1.0  1.0  0.0  0.0; 
+        0.0  0.0  1.0  1.0]
     
     method = SelfTuningDiscretization()
     labels = discretize(V, method; k=2)
@@ -46,18 +46,20 @@ end
 
 @testset "Self-Tuning Discretization with Rotation Recovery" begin
     # Perfect eigenvectors
-    V_perfect = [1.0 0.0;
-                 1.0 0.0;
-                 0.0 1.0;
-                 0.0 1.0]
+    V_perfect = [1.0  1.0  0.0  0.0; 
+                0.0  0.0  1.0  1.0]
                  
     # Mix the eigenvectors by applying a 45-degree rotation (pi/4)
     theta = pi / 4
     R_mix = [cos(theta) -sin(theta); 
              sin(theta) cos(theta)]
-    V_mixed = V_perfect * R_mix
+    V_mixed = R_mix * V_perfect
     
     method = SelfTuningDiscretization()
+    #1.  optimize_rotation takes this messy V_mixed.
+    #2.  It sets up an objective function to minimize calculate_alignment_cost.
+    #3.  The gradient descent algorithm tweaks the angles until it finds the exact inverse of your 45-degree rotation.
+    #4.  It applies this inverse rotation, turning the messy decimals back into the perfect 1s and 0s, and perfectly assigns the labels.
     
     # The optimization step should "un-rotate" the matrix and recover the clusters
     labels = discretize(V_mixed, method; k=2)
@@ -70,28 +72,38 @@ end
 
 @testset "Self-Tuning Discretization Automatic k (Self-Tuning)" begin
     # Perfect eigenvectors for exactly 3 distinct clusters
-    V_perfect = [1.0 0.0 0.0;
-                 1.0 0.0 0.0;
-                 0.0 1.0 0.0;
-                 0.0 1.0 0.0;
-                 0.0 0.0 1.0;
-                 0.0 0.0 1.0]
+    V_perfect=[1.0 1.0 0.0 0.0 0.0 0.0;
+                0.0 0.0 1.0 1.0 0.0 0.0;
+                0.0 0.0 0.0 0.0 1.0 1.0]
                  
-    # Real eigensolvers return a mixed orthogonal basis of the eigenspace.
-    # We simulate this reality by applying a 3x3 orthogonal mixing matrix Q.
-    Q = [ 1/sqrt(3)   1/sqrt(2)   1/sqrt(6);
-          1/sqrt(3)  -1/sqrt(2)   1/sqrt(6);
-          1/sqrt(3)   0.0        -2/sqrt(6)]
+    theta = pi / 12  # Exactly 15 degrees
+    
+    R_y = [cos(theta)  0  sin(theta);
+           0           1  0         ;
+          -sin(theta)  0  cos(theta)]
+          
+    R_z = [cos(theta) -sin(theta)  0;
+           sin(theta)  cos(theta)  0;
+           0           0           1]
+           
+    Q = R_y * R_z
          
-    V_mixed = V_perfect * Q
+    V_mixed = Q * V_perfect 
          
     method = SelfTuningDiscretization()
     
     # Do not provide k, forcing the algorithm to find the optimal k
     labels = discretize(V_mixed, method)
+    #1. The function enters the "Self-Tuning" block.  
+    #2. It starts a loop: for current_k in 2:max_clusters.  
+    #3. Iteration 1 ($k=2$): It grabs the first 2 columns, optimizes the rotation, and calculates the cost. 
+    #4. The cost is high because forcing 3 distinct clusters into 2 dimensions creates overlap.  
+    #5. Iteration 2 ($k=3$): It grabs all 3 columns, optimizes the rotation, and perfectly recovers the original axes. 
+    #6. The cost drops significantly.  
+    #7. It compares the costs, sees that $k=3$ is the lowest, and saves best_Z as the 3D un-rotated matrix.  
+    #8. It returns the final labels based on this optimally sized, optimally rotated matrix.
     
     @test length(labels) == 6
-    # The algorithm should now correctly identify that there are exactly 3 clusters
     @test length(unique(labels)) == 3
     
     # Check that the assignments are grouped correctly
@@ -113,7 +125,9 @@ end
     
     A = compute_affinity(X, method)
 
+    #Affinity should be square
     @test size(A) == (3, 3)
+    #and square symmetric
     @test A ≈ A'
 
     # Diagonal must be 0.0 as hardcoded in the function
