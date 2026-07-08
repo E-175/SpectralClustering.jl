@@ -36,13 +36,10 @@ A vector of cluster labels with one label per sample.
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 - `ArgumentError` if row normalization is requested and at least one row has norm zero.
 """
-function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
+function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
     # The K-Means expects a fixed number of clusters.
     isnothing(k) && throw(ArgumentError("K-Means requires a specific number of clusters 'k'."))
 
-    if !isnothing(method.seed)
-        Random.seed!(method.seed)
-    end
 
     # The columns of V correspond to samples.
     # The rows of V correspond to selected eigenvectors.
@@ -72,37 +69,61 @@ function discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{In
 
     # Manual implementation of KMeans
     if method.use_manual_implementation
+        
+        # Set timeout to avoid potential endless loops
         timeout = 1000
-        currentCentroids = V[:,randperm(size(V,2))[1:k]]
-        nearestCentroids = zeros(Int,size(V,2))
+        # Select k random points from the relevant dataset as starting centroids
+        current_centroids = V[:,randperm(rng,size(V,2))[1:k]]
+        # This vector is going to contain the number of the centroid that is nearest to it
+        # That number is going to be assigned at the start of every iteration of the loop
+        nearest_centroids = zeros(Int,size(V,2))
         for _ in 1:timeout
+            # Calculate the distance of every datapoint to every current centroid
             # Currently uses euclidian distance / L2 Norm
-            distancesMatrix = [norm(V[:,x] - currentCentroids[:,y]) for x = 1:size(V,2), y = 1:k]
-            newNearestCentroids = vec([i[2] for i in argmin(distancesMatrix,dims=2)])
-            if newNearestCentroids == nearestCentroids
+            # Matrix contains one row for every datapoint and one column for every centroid (k)
+            distances_matrix = [norm(V[:,x] - current_centroids[:,y]) for x = 1:size(V,2), y = 1:k]
+            # Select the column index of the field containing the lowest entry for every row
+            # This is the number of the centroid that is closest to that datapoint
+            new_nearest_centroids = vec([i[2] for i in argmin(distances_matrix,dims=2)])
+            # If no datapoint changed its cluster / the nearest centroid stayed the same the algorithm converged
+            if new_nearest_centroids == nearest_centroids
                 break
             else
-                nearestCentroids = newNearestCentroids
+                # Otherwise update the vector containing the nearest centroid of every datapoint
+                nearest_centroids = new_nearest_centroids
             end
             # Move Centroid of Cluster
-            for currentClusterIndex in 1:k
-                currentCluster = V[:,nearestCentroids .== currentClusterIndex]
-                if isempty(currentCluster)
-                    currentCentroids[:,currentClusterIndex] = V[:,rand(1:size(V,2))]
+            # Iterate over all centroids
+            for current_cluster_index in 1:k
+                # Filter all datapoints that are assigned to the current centroid, i.e. the current cluster
+                current_cluster = V[:,nearest_centroids .== current_cluster_index]
+                # If the current cluster is empty move its centroid to a random datapoint
+                if isempty(current_cluster)
+                    current_centroids[:,current_cluster_index] = V[:,rand(rng,1:size(V,2))]
                 else
-                    currentCentroids[:,currentClusterIndex] = vec(mean(currentCluster,dims=2))
+                    # Otherwise calculate the mean of all datapoints in the cluster and move centroid
+                    current_centroids[:,current_cluster_index] = vec(mean(current_cluster,dims=2))
                 end
             end
         end
-        return nearestCentroids
-    end
+        return nearest_centroids
 
+    else
+    
     # Clustering.kmeans expects data in the format features × samples.
     result = kmeans(embedding, k)
 
     # Return one cluster label per sample.
     return assignments(result)
+    end
+
+   
 end
+
+
+# Fallback wrapper if RNG is not provided
+discretize(V::AbstractMatrix, method::KMeansDiscretization; kwargs...) = discretize(Random.default_rng(), V, method; kwargs...)
+
 
 # ---------------------------------------------------------
 # TODO: Jens (Self-Tuning)
