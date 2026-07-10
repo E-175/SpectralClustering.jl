@@ -28,7 +28,7 @@ p2 = scatter(X[1,:], X[2,:], group=y_pred, title="Spectral Clustering", legend=f
 plot(p1, p2, layout=(1,2), size=(800, 400), margin=5Plots.mm)
 ```
 
-*(Note: Because clustering is unsupervised, it assigns arbitrary integer labels to the groups it finds, meaning the predicted colors may appear swapped compared to the ground truth.)*
+*Note: You may notice that the clustering does not match the ground truth. That is expected here: this first example uses the default parameters which may not be ideal for the given data. The next section demonstrates how tuning the affinity, Laplacian, and discretization choices can improve the clustering for a specific dataset.*
 
 ### Customizing the Algorithm
 

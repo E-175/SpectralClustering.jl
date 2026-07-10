@@ -7,7 +7,7 @@ end
 """
     compute_affinity(X, method::RBFKernel; self_affinity=0.0)
 
-Compute the RBF affinity matrix. The affinity between two samples `i` and `j` is 
+Compute the RBF affinity matrix. The affinity between two samples `i` and `j` is
 computed as:
 
     exp(-||xᵢ - xⱼ||² / (2σ²))
@@ -17,10 +17,16 @@ where `σ` is defined in the `RBFKernel` struct.
 # Arguments
 - `X`: Data matrix with shape `n_features × n_samples`. Each column is one sample.
 - `method`: RBF kernel configuration containing the width parameter `sigma`.
+
+# Keyword arguments
 - `self_affinity`: Value used on the diagonal of the affinity matrix.
 
 # Returns
 A symmetric `n_samples × n_samples` affinity matrix.
+
+# Throws
+- `ArgumentError` if `method.sigma` is not positive.
+- An indexing error if `X` does not use one-based indexing.
 """
 function compute_affinity(X::AbstractMatrix, method::RBFKernel; self_affinity::Real=0)
     Base.require_one_based_indexing(X)
@@ -61,20 +67,26 @@ end
 """
     compute_affinity(X, method::LocalScaling; self_affinity=0.0)
 
-Compute the local Scaling affinity matrix. The affinity between two samples `i` and `j` is 
+Compute the local-scaling affinity matrix. The affinity between two samples `i` and `j` is
 computed as:
 
     exp(-d²(xᵢ,xⱼ) / σᵢσⱼ)
 
-where `σᵢ` is determined by measuring the distance from point sᵢ to its K-th nearest neighbor.
+where `σᵢ` is determined by the distance from sample `i` to its `k`-th nearest
+neighbor.
 
-`X` is expected to have shape `n_features × n_samples`, meaning each column is one sample.
+# Arguments
+- `X`: Data matrix with shape `n_features × n_samples`. Each column is one sample.
+- `method`: Local-scaling affinity configuration containing the neighbor rank `k`.
 
 # Keyword arguments
-- `self_affinity`: Value used on the diagonal of the affinity matrix. Has to be 0.
+- `self_affinity`: Ignored. The diagonal of the returned affinity matrix is always zero.
 
 # Returns
 A symmetric `n_samples × n_samples` affinity matrix.
+
+# Throws
+- An indexing error if `X` does not use one-based indexing.
 """
 function compute_affinity(X::AbstractMatrix, method::LocalScaling; self_affinity::Real=0)
     Base.require_one_based_indexing(X)

@@ -20,6 +20,7 @@ makedocs(;
         "Home" => "index.md",
         "Installation" => "installation.md",
         "Getting Started" => "getting_started.md",
+        "Example" => "benchmark.md",
         "Manual" => [
             "Datasets" => "manual/datasets.md",
             "Affinities" => "manual/affinities.md",
