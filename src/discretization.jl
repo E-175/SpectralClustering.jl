@@ -8,6 +8,7 @@ discretize(rng::AbstractRNG, V::AbstractMatrix, method::AbstractDiscretization; 
     discretize(V, method; kwargs...)
 
 """
+    discretize(rng::AbstractRNG, V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
     discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
 
 Discretize a spectral embedding into cluster labels using K-Means.
@@ -24,19 +25,20 @@ length before K-Means is applied. This is used for variants such as the
 Ng-Jordan-Weiss normalized spectral clustering method.
 
 # Arguments
-- `rng`: Random number generator for reproducibility.
+- `rng`: Random number generator for reproducibility. If omitted, `default_rng()` is used.
 - `V`: Spectral embedding matrix with one column per sample (features × samples).
 - `method`: K-Means discretization configuration.
 - `k`: Number of clusters.
 
 # Returns
-A vector of cluster labels with one label per sample.
+A `Vector{Int}` containing one cluster label per sample.
 
 # Throws
+- `ArgumentError` if `V` does not use one-based indexing.
 - `ArgumentError` if `k` is not provided.
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
-- `ArgumentError` if row normalization is requested and at least one row has norm zero.
-- `ArgumentError` if manual K-Means implementation is requested and V indexing is not one-based.
+- `ArgumentError` if the embedding contains no eigenvectors.
+- `ArgumentError` if column normalization is requested and at least one column has norm zero.
 """
 function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
     Base.require_one_based_indexing(V)
@@ -135,24 +137,31 @@ discretize(V::AbstractMatrix, method::KMeansDiscretization; kwargs...) = discret
 """
     discretize(V, method::SelfTuningDiscretization; k=nothing)
 
-Discretize the continuous eigenvectors into cluster labels using the Self-Tuning approach.
+Discretize a spectral embedding into cluster labels using the self-tuning
+rotation-based method of Zelnik-Manor and Perona.
 
-Instead of using K-means, this method finds an optimal rotation matrix `R` to align the 
-eigenvectors with the canonical coordinate system. It assigns cluster labels based on the 
-maximum absolute value in each row of the rotated matrix `Z = V * R`.
+The input matrix `V` follows the same convention as the other discretizers: each
+column is a sample and each row is one selected eigenvector.
 
-If `k` is not provided, the algorithm automatically determines the optimal number of clusters 
-by evaluating the alignment cost for different numbers of clusters (from 2 up to the number of columns in `V`)
-and selecting the one that minimizes the cost.
+Instead of using K-Means, this method optimizes a rotation of the embedding and
+assigns each sample to the coordinate with largest magnitude after rotation.
 
-`V` is expected to have shape `n_samples × max_clusters`, containing the top eigenvectors 
-of the normalized affinity matrix.
+If `k` is provided, only the first `k` eigenvectors are used. If `k` is `nothing`,
+the method evaluates cluster counts from `2` up to the number of available
+eigenvectors and selects the one with the lowest alignment cost.
+
+# Arguments
+- `V`: Spectral embedding matrix with one column per sample (features × samples).
+- `method`: Self-tuning discretization configuration.
 
 # Keyword arguments
 - `k`: Optional integer specifying the exact number of clusters. If `nothing` (default), the algorithm self-tunes to find the optimal number of clusters.
 
 # Returns
 A `Vector{Int}` of length `n_samples` containing the assigned cluster labels.
+
+# Throws
+- `ArgumentError` if `k` is larger than the number of eigenvectors provided in `V`.
 """
 function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
     Base.require_one_based_indexing(V)

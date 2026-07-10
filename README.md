@@ -35,7 +35,6 @@ scatter(X[1,:], X[2,:], group=y_pred, legend=false, title="Spectral Clustering")
 
 For advanced usage (like customizing the `RBFKernel` bandwidth or using the `LocalScaling` affinity), check out our [Documentation](https://E-175.github.io/SpectralClustering.jl/dev/)!
 
-
 ## References
 
 This package implements various spectral clustering algorithms based on the following papers:
