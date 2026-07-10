@@ -8,7 +8,7 @@ If an `rng` is provided, it is forwarded to the discretization step. This is
 primarily relevant for discretizers with randomized behavior, such as
 `KMeansDiscretization`.
 """
-function spectral_cluster(X::AbstractMatrix, k::Int; 
+function spectral_cluster(X::AbstractMatrix, k::Integer; 
                           affinity::AbstractAffinity = RBFKernel(),
                           laplacian::AbstractLaplacian = RandomWalkLaplacian(),
                           discretizer::AbstractDiscretization = KMeansDiscretization(false),
