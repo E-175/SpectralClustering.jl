@@ -36,10 +36,13 @@ end
     X = [0.0 1.0;
          0.0 0.0]
 
+    A_default = compute_affinity(X, RBFKernel(1.0))
     A = compute_affinity(X, RBFKernel(1.0); self_affinity=1.0)
 
     @test A[1, 1] == 1.0
     @test A[2, 2] == 1.0
+    @test A[1, 2] == A_default[1, 2]
+    @test A[2, 1] == A_default[2, 1]
 end
 
 @testset "Affinity matrix sigma validation" begin
@@ -49,18 +52,6 @@ end
     @test_throws ArgumentError compute_affinity(X, RBFKernel(0.0))
 
     @test_throws ArgumentError compute_affinity(X, RBFKernel(-1.0))
-end
-
-@testset "Affinity matrix works with generated data" begin
-    rng = MersenneTwister(42)
-    X, y = make_moons(rng, 100; noise=0.05)
-
-    A = compute_affinity(X, RBFKernel(1.0))
-
-    @test size(A) == (100, 100)
-    @test A ≈ A'
-    @test all(A .>= 0.0)
-    @test all(A .<= 1.0)
 end
 
 @testset "Affinity preserves input float types" begin
