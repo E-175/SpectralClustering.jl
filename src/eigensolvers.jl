@@ -1,5 +1,5 @@
 """
-    compute_eigenvectors(L::AbstractMatrix, k::Int)
+    compute_eigenvectors(L::AbstractMatrix, k::Integer)
 
 Extracts the bottom `k` eigenvectors from the Laplacian `L`.
 
@@ -19,7 +19,8 @@ sample and `k` rows (features × samples format).
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 - `ArgumentError` if the selected eigenvectors contain non-negligible imaginary parts.
 """
-function compute_eigenvectors(L::AbstractMatrix, k::Int)
+function compute_eigenvectors(L::AbstractMatrix, k::Integer)
+    Base.require_one_based_indexing(L)
     # Get the dimensions of the Laplacian matrix.
     # A Laplacian must be square because it represents relationships between samples.
     n, m = size(L)

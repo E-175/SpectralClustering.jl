@@ -10,5 +10,6 @@ using Test
     include("test_laplacians.jl")
     include("test_self_tuning.jl")
     include("test_aqua.jl")
+    include("test_indexing.jl")
 
 end

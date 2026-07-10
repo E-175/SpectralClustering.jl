@@ -13,11 +13,11 @@ Base.@kwdef struct RBFKernel{T<:Real} <: AbstractAffinity
 end
 
 """
-    LocalScaling(k::Int)
+    LocalScaling(k::Integer)
 Local scaling affinity where scale depends on the `k`-th nearest neighbor.
 """
-struct LocalScaling <: AbstractAffinity 
-    k::Int 
+struct LocalScaling{T<:Integer} <: AbstractAffinity 
+    k::T
 end
 
 

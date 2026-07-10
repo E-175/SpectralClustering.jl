@@ -33,7 +33,7 @@ The specific type of the Laplacian depends on the type of the input matrix W. It
 
 """
 function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
-
+    Base.require_one_based_indexing(W)
     #Ensure that requirements for arguments are fulfilled
     #Ensure that W is square
     n,m = size(W)
@@ -99,7 +99,7 @@ The random-walk normalized Laplacian matrix `L_rw`.
 - `ArgumentError` if at least one node has degree zero.
 """
 function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
-
+    Base.require_one_based_indexing(W)
     # Get the number of rows and columns of the affinity matrix.
     # A valid affinity matrix must compare every sample with every other sample.
     n, m = size(W)
@@ -125,22 +125,12 @@ function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
 
     # Initialize the result matrix.
     # This matrix will contain L_rw = I - D⁻¹W.
-    Lrw = zeros(Float64, n, n)
+    # Normalize each row of W by the degree of the corresponding node.
+    # This computes D⁻¹W without explicitly building or inverting D.
+    normalized_W = W ./ degrees
 
-    # Build the matrix row by row.
-    # For D⁻¹W, every row i of W is divided by the degree of node i.
-    for i in 1:n
-        # Add the identity matrix part I.
-        Lrw[i, i] = 1.0
-
-        # Subtract the normalized affinity values.
-        # This gives L_rw[i, j] = I[i, j] - W[i, j] / degree[i].
-        for j in 1:n
-            Lrw[i, j] -= W[i, j] / degrees[i]
-        end
-    end
-
-    return Lrw
+    # Build L_rw = I - D⁻¹W.
+    return Matrix{Float64}(I, n, n) - normalized_W
 
 end
 
@@ -186,6 +176,7 @@ The specific type of the Laplacian depends on the type of the input matrix W. It
 
 """
 function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
+    Base.require_one_based_indexing(W)
     #Ensure that requirements for arguments are fulfilled
     #Ensure that W is square
     n, m = size(W)
