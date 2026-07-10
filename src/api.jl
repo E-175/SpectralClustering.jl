@@ -1,5 +1,5 @@
 """
-    spectral_cluster(X, k; affinity, laplacian, discretizer, rng=Random.default_rng())
+    spectral_cluster(X, k; affinity, laplacian, discretizer, rng=default_rng())
 
 Perform spectral clustering on data matrix `X` into `k` clusters.
 `X` should be `n_features × n_samples`.
@@ -12,7 +12,7 @@ function spectral_cluster(X::AbstractMatrix, k::Integer;
                           affinity::AbstractAffinity = RBFKernel(),
                           laplacian::AbstractLaplacian = RandomWalkLaplacian(),
                           discretizer::AbstractDiscretization = KMeansDiscretization(false),
-                          rng::AbstractRNG = Random.default_rng())
+                          rng::AbstractRNG = default_rng())
     
     # 1. Build Similarity Graph
     W = compute_affinity(X, affinity)

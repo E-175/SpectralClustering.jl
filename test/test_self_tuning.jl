@@ -27,6 +27,15 @@ end
     @test cost ≈ calculate_alignment_cost(V_single)
 end
 
+@testset "Self-Tuning helpers preserve float types" begin
+    Z = Float32[1 0;
+                0 1]
+
+    cost = calculate_alignment_cost(Z)
+
+    @test cost isa Float32
+end
+
 @testset "Self-Tuning Discretization Fixed k" begin
     # Perfect eigenvectors for 2 clusters
     V = [1.0  1.0  0.0  0.0; 

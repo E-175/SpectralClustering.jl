@@ -62,3 +62,14 @@ end
     @test all(A .>= 0.0)
     @test all(A .<= 1.0)
 end
+
+@testset "Affinity preserves input float types" begin
+    X = Float32[0 1 3;
+                0 0 0]
+
+    A_rbf = compute_affinity(X, RBFKernel(1.0f0))
+    A_local = compute_affinity(X, LocalScaling(1))
+
+    @test eltype(A_rbf) == Float32
+    @test eltype(A_local) == Float32
+end
