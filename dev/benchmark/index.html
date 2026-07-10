@@ -1,2 +1,152 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Benchmarks · SpectralClustering.jl</title><meta name="title" content="Benchmarks · SpectralClustering.jl"/><meta property="og:title" content="Benchmarks · SpectralClustering.jl"/><meta property="twitter:title" content="Benchmarks · SpectralClustering.jl"/><meta name="description" content="Documentation for SpectralClustering.jl."/><meta property="og:description" content="Documentation for SpectralClustering.jl."/><meta property="twitter:description" content="Documentation for SpectralClustering.jl."/><meta property="og:url" content="https://E-175.github.io/SpectralClustering.jl/benchmark/"/><meta property="twitter:url" content="https://E-175.github.io/SpectralClustering.jl/benchmark/"/><link rel="canonical" href="https://E-175.github.io/SpectralClustering.jl/benchmark/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">SpectralClustering.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../installation/">Installation</a></li><li><a class="tocitem" href="../getting_started/">Getting Started</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../manual/datasets/">Datasets</a></li><li><a class="tocitem" href="../manual/affinities/">Affinities</a></li><li><a class="tocitem" href="../manual/laplacians/">Laplacians</a></li><li><a class="tocitem" href="../manual/eigensolvers/">Eigensolvers</a></li><li><a class="tocitem" href="../manual/discretization/">Discretization</a></li></ul></li><li><a class="tocitem" href="../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Benchmarks</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Benchmarks</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/E-175/SpectralClustering.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/E-175/SpectralClustering.jl/blob/main/docs/src/benchmark.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Benchmarks"><a class="docs-heading-anchor" href="#Benchmarks">Benchmarks</a><a id="Benchmarks-1"></a><a class="docs-heading-anchor-permalink" href="#Benchmarks" title="Permalink"></a></h1><p>We evaluate the performance of <code>SpectralClustering.jl</code> against standard algorithms like K-Means using the <strong>Caltech-101</strong> dataset (7-class subset) to test our custom discretizations and affinity matrices on real-world, high-dimensional features.</p><p>Dataset: https://github.com/ZhangqiJiang07/Multi-view<em>Multi-class</em>Datasets/blob/main/traditional<em>MvSSL</em>baselines/datasets/Caltech101_7.mat</p><h2 id="Results-(48-Dimensional-Features)"><a class="docs-heading-anchor" href="#Results-(48-Dimensional-Features)">Results (48-Dimensional Features)</a><a id="Results-(48-Dimensional-Features)-1"></a><a class="docs-heading-anchor-permalink" href="#Results-(48-Dimensional-Features)" title="Permalink"></a></h2><p>Performance is measured using two standard clustering metrics:</p><ul><li><strong>ARI (Adjusted Rand Index):</strong> Measures how often pairs of points in the same true class end up in the same predicted cluster (1.0 is perfect).</li><li><strong>NMI (Normalized Mutual Information):</strong> Measures the shared information between the true classes and predicted clusters (1.0 is perfect).</li></ul><table><tr><th style="text-align: left">Algorithm Configuration</th><th style="text-align: left">Affinity Method</th><th style="text-align: left">Discretization Method</th><th style="text-align: left">ARI</th><th style="text-align: left">NMI</th></tr><tr><td style="text-align: left"><strong>Standard Spectral</strong></td><td style="text-align: left">RBF Kernel (<span>$\sigma = 100.0$</span>)</td><td style="text-align: left">K-Means</td><td style="text-align: left">0.230</td><td style="text-align: left">0.160</td></tr><tr><td style="text-align: left"><strong>Local Scaling Spectral</strong></td><td style="text-align: left">Local Scaling (<span>$k = 7$</span>)</td><td style="text-align: left">K-Means</td><td style="text-align: left">0.235</td><td style="text-align: left">0.156</td></tr><tr><td style="text-align: left"><strong>Self-Tuning Spectral</strong></td><td style="text-align: left">Local Scaling (<span>$k = 7$</span>)</td><td style="text-align: left">Self-Tuning (Optimal Rotation)</td><td style="text-align: left">0.221</td><td style="text-align: left">0.156</td></tr></table><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>The benchmark confirms that our custom <code>SelfTuningDiscretization</code> mathematical engine successfully recovers the underlying cluster structure, performing in the exact same mathematical tier as highly optimized K-Means implementations. Additionally, <code>LocalScaling</code> successfully eliminates the need to manually tune the RBF width (<span>$\sigma$</span>) for high-dimensional feature spaces without sacrificing accuracy.</p><h2 id="Reproducing-the-Benchmarks"><a class="docs-heading-anchor" href="#Reproducing-the-Benchmarks">Reproducing the Benchmarks</a><a id="Reproducing-the-Benchmarks-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducing-the-Benchmarks" title="Permalink"></a></h2><p>To run this benchmark yourself:</p><ol><li>Download <code>Caltech101_7.mat</code> from <a href="https://github.com/ZhangqiJiang07/Multi-view_Multi-class_Datasets">ZhangqiJiang07&#39;s Repository</a>.</li><li>Place it in the <code>benchmark/</code> folder of this repository.</li><li>Run <code>include(&quot;benchmark/caltech_benchmark.jl&quot;)</code> from the package root.</li></ol></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 10 July 2026 18:20">Friday 10 July 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example · SpectralClustering.jl</title><meta name="title" content="Example · SpectralClustering.jl"/><meta property="og:title" content="Example · SpectralClustering.jl"/><meta property="twitter:title" content="Example · SpectralClustering.jl"/><meta name="description" content="Documentation for SpectralClustering.jl."/><meta property="og:description" content="Documentation for SpectralClustering.jl."/><meta property="twitter:description" content="Documentation for SpectralClustering.jl."/><meta property="og:url" content="https://E-175.github.io/SpectralClustering.jl/benchmark/"/><meta property="twitter:url" content="https://E-175.github.io/SpectralClustering.jl/benchmark/"/><link rel="canonical" href="https://E-175.github.io/SpectralClustering.jl/benchmark/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">SpectralClustering.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../installation/">Installation</a></li><li><a class="tocitem" href="../getting_started/">Getting Started</a></li><li class="is-active"><a class="tocitem" href>Example</a><ul class="internal"><li><a class="tocitem" href="#Example-Setup"><span>Example Setup</span></a></li><li><a class="tocitem" href="#Dataset-Visualization"><span>Dataset Visualization</span></a></li><li><a class="tocitem" href="#Run-the-Comparison"><span>Run the Comparison</span></a></li><li><a class="tocitem" href="#Predicted-Partitions"><span>Predicted Partitions</span></a></li><li><a class="tocitem" href="#Interpretation"><span>Interpretation</span></a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../manual/datasets/">Datasets</a></li><li><a class="tocitem" href="../manual/affinities/">Affinities</a></li><li><a class="tocitem" href="../manual/laplacians/">Laplacians</a></li><li><a class="tocitem" href="../manual/eigensolvers/">Eigensolvers</a></li><li><a class="tocitem" href="../manual/discretization/">Discretization</a></li></ul></li><li><a class="tocitem" href="../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Example</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/E-175/SpectralClustering.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/E-175/SpectralClustering.jl/blob/main/docs/src/benchmark.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Comparison-of-Kmeans-vs-different-Spectral-Clustering-variants"><a class="docs-heading-anchor" href="#Comparison-of-Kmeans-vs-different-Spectral-Clustering-variants">Comparison of Kmeans vs different Spectral Clustering variants</a><a id="Comparison-of-Kmeans-vs-different-Spectral-Clustering-variants-1"></a><a class="docs-heading-anchor-permalink" href="#Comparison-of-Kmeans-vs-different-Spectral-Clustering-variants" title="Permalink"></a></h1><p>This page compares bare K-Means with several spectral clustering variants on the public <strong>Jain</strong> dataset.</p><p>The Jain dataset consists of two labeled clusters in two dimensions. Each row of the source file contains an <span>$x$</span> coordinate, a <span>$y$</span> coordinate, and a class label. Because the data is two-dimensional, the dataset can be inspected directly with a scatter plot before and after clustering.</p><p>The comparison includes:</p><ul><li>bare K-Means on the raw coordinates</li><li>spectral clustering with an <code>RBFKernel</code></li><li>spectral clustering with <code>LocalScaling</code></li><li>the three exported discretizers: <code>KMeansDiscretization</code>, <code>SelfTuningDiscretization</code>, and <code>SVDDiscretization</code></li></ul><p>Dataset source: https://cs.joensuu.fi/sipu/datasets/</p><h2 id="Example-Setup"><a class="docs-heading-anchor" href="#Example-Setup">Example Setup</a><a id="Example-Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Example-Setup" title="Permalink"></a></h2><pre><code class="language-julia hljs">using SpectralClustering
+using Clustering
+using DelimitedFiles
+using Plots
+using Random
+using Statistics
+using LinearAlgebra</code></pre><pre><code class="language-julia hljs">function load_jain_dataset()
+	path = joinpath(dirname(dirname(@__DIR__)), &quot;benchmark&quot;, &quot;jain.txt&quot;)
+	raw = readdlm(path)
+
+	X = Matrix{Float64}(raw[:, 1:2])&#39;
+	y_raw = Int.(raw[:, 3])
+
+	labels = sort(unique(y_raw))
+	label_map = Dict(label =&gt; i for (i, label) in enumerate(labels))
+	y = [label_map[label] for label in y_raw]
+
+	return X, y
+end
+
+function pairwise_distances(X)
+	distances = Float64[]
+	n_samples = size(X, 2)
+
+	for i in 1:(n_samples - 1)
+		for j in (i + 1):n_samples
+			push!(distances, norm(X[:, i] - X[:, j]))
+		end
+	end
+
+	return distances
+end
+
+X, y = load_jain_dataset()
+k = length(unique(y))
+
+# A small RBF width works well on this dataset; we use the 5th percentile of
+# pairwise distances as a simple data-driven heuristic.
+sigma = quantile(pairwise_distances(X), 0.05)
+
+(size(X), length(y), round(sigma, digits=3))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">((2, 373), 373, 2.295)</code></pre><h2 id="Dataset-Visualization"><a class="docs-heading-anchor" href="#Dataset-Visualization">Dataset Visualization</a><a id="Dataset-Visualization-1"></a><a class="docs-heading-anchor-permalink" href="#Dataset-Visualization" title="Permalink"></a></h2><p>The scatter plot below shows the original coordinates and the ground-truth class labels from the dataset.</p><pre><code class="language-julia hljs">scatter(
+	X[1, :],
+	X[2, :],
+	group=y,
+	legend=false,
+	markersize=3,
+	aspect_ratio=:equal,
+	title=&quot;Jain Ground Truth&quot;,
+)</code></pre><img src="8b3e4d37.svg" alt="Example block output"/><h2 id="Run-the-Comparison"><a class="docs-heading-anchor" href="#Run-the-Comparison">Run the Comparison</a><a id="Run-the-Comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Run-the-Comparison" title="Permalink"></a></h2><p>For all runs below, we fix <code>k = 2</code> and evaluate two affinity constructions:</p><ul><li><code>RBFKernel(sigma=sigma)</code> with <code>sigma</code> estimated from the data</li><li><code>LocalScaling(3)</code></li></ul><p>The reported metrics are:</p><ul><li><strong>ARI</strong> (Adjusted Rand Index)</li><li><strong>NMI</strong> (Normalized Mutual Information)</li></ul><pre><code class="language-julia hljs">function evaluate_methods(X, y, sigma)
+	k = length(unique(y))
+
+	methods = [
+		(name=&quot;Bare K-Means&quot;, runner=(data, rng) -&gt; assignments(kmeans(data, k; rng=rng))),
+		(name=&quot;RBF + K-Means&quot;, runner=(data, rng) -&gt; spectral_cluster(
+			data,
+			k;
+			affinity=RBFKernel(sigma=sigma),
+			laplacian=RandomWalkLaplacian(),
+			discretizer=KMeansDiscretization(true),
+			rng=rng,
+		)),
+		(name=&quot;RBF + Self-Tuning&quot;, runner=(data, rng) -&gt; spectral_cluster(
+			data,
+			k;
+			affinity=RBFKernel(sigma=sigma),
+			laplacian=RandomWalkLaplacian(),
+			discretizer=SelfTuningDiscretization(),
+			rng=rng,
+		)),
+		(name=&quot;RBF + SVD&quot;, runner=(data, rng) -&gt; spectral_cluster(
+			data,
+			k;
+			affinity=RBFKernel(sigma=sigma),
+			laplacian=RandomWalkLaplacian(),
+			discretizer=SVDDiscretization(),
+			rng=rng,
+		)),
+		(name=&quot;Local Scaling + K-Means&quot;, runner=(data, rng) -&gt; spectral_cluster(
+			data,
+			k;
+			affinity=LocalScaling(3),
+			laplacian=RandomWalkLaplacian(),
+			discretizer=KMeansDiscretization(true),
+			rng=rng,
+		)),
+		(name=&quot;Local Scaling + Self-Tuning&quot;, runner=(data, rng) -&gt; spectral_cluster(
+			data,
+			k;
+			affinity=LocalScaling(3),
+			laplacian=RandomWalkLaplacian(),
+			discretizer=SelfTuningDiscretization(),
+			rng=rng,
+		)),
+		(name=&quot;Local Scaling + SVD&quot;, runner=(data, rng) -&gt; spectral_cluster(
+			data,
+			k;
+			affinity=LocalScaling(3),
+			laplacian=RandomWalkLaplacian(),
+			discretizer=SVDDiscretization(),
+			rng=rng,
+		)),
+	]
+
+	results = NamedTuple[]
+	predictions = Dict{String, Vector{Int}}()
+
+	for method in methods
+		predicted = method.runner(X, Xoshiro(42))
+		ari = randindex(y, predicted)[4]
+		nmi = mutualinfo(y, predicted)
+		push!(results, (name=method.name, ari=ari, nmi=nmi))
+		predictions[method.name] = predicted
+	end
+
+	return results, predictions
+end
+
+results, predictions = evaluate_methods(X, y, sigma)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(NamedTuple[(name = &quot;Bare K-Means&quot;, ari = 0.32428147251290035, nmi = 0.3690019484299291), (name = &quot;RBF + K-Means&quot;, ari = 0.5909366081466747, nmi = 0.5532797704448927), (name = &quot;RBF + Self-Tuning&quot;, ari = 0.9892761394101877, nmi = 0.9715376226398756), (name = &quot;RBF + SVD&quot;, ari = 0.9892761394101877, nmi = 0.9715376226398756), (name = &quot;Local Scaling + K-Means&quot;, ari = 0.9892761394101877, nmi = 0.9715376226398756), (name = &quot;Local Scaling + Self-Tuning&quot;, ari = 1.0, nmi = 1.0), (name = &quot;Local Scaling + SVD&quot;, ari = 1.0, nmi = 1.0)], Dict(&quot;Local Scaling + K-Means&quot; =&gt; [2, 2, 2, 2, 2, 2, 2, 2, 2, 2  …  1, 1, 1, 1, 1, 1, 1, 1, 1, 1], &quot;RBF + K-Means&quot; =&gt; [2, 2, 2, 2, 2, 2, 2, 2, 2, 2  …  1, 1, 1, 1, 1, 1, 1, 1, 1, 1], &quot;RBF + SVD&quot; =&gt; [1, 1, 1, 1, 1, 1, 1, 1, 1, 1  …  2, 2, 2, 2, 2, 2, 2, 2, 2, 2], &quot;Local Scaling + SVD&quot; =&gt; [1, 1, 1, 1, 1, 1, 1, 1, 1, 1  …  2, 2, 2, 2, 2, 2, 2, 2, 2, 2], &quot;Local Scaling + Self-Tuning&quot; =&gt; [1, 1, 1, 1, 1, 1, 1, 1, 1, 1  …  2, 2, 2, 2, 2, 2, 2, 2, 2, 2], &quot;RBF + Self-Tuning&quot; =&gt; [1, 1, 1, 1, 1, 1, 1, 1, 1, 1  …  2, 2, 2, 2, 2, 2, 2, 2, 2, 2], &quot;Bare K-Means&quot; =&gt; [2, 2, 2, 2, 2, 2, 2, 2, 2, 2  …  1, 1, 1, 1, 1, 1, 1, 1, 1, 1]))</code></pre><pre><code class="language-julia hljs">println(rpad(&quot;Method&quot;, 32), lpad(&quot;ARI&quot;, 8), lpad(&quot;NMI&quot;, 8))
+println(&quot;-&quot;^48)
+for row in results
+	println(rpad(row.name, 32), lpad(string(round(row.ari, digits=3)), 8), lpad(string(round(row.nmi, digits=3)), 8))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Method                               ARI     NMI
+------------------------------------------------
+Bare K-Means                       0.324   0.369
+RBF + K-Means                      0.591   0.553
+RBF + Self-Tuning                  0.989   0.972
+RBF + SVD                          0.989   0.972
+Local Scaling + K-Means            0.989   0.972
+Local Scaling + Self-Tuning          1.0     1.0
+Local Scaling + SVD                  1.0     1.0</code></pre><h2 id="Predicted-Partitions"><a class="docs-heading-anchor" href="#Predicted-Partitions">Predicted Partitions</a><a id="Predicted-Partitions-1"></a><a class="docs-heading-anchor-permalink" href="#Predicted-Partitions" title="Permalink"></a></h2><p>The next figure compares one baseline partition with one spectral partition on the same input coordinates.</p><pre><code class="language-julia hljs">plot(
+	scatter(
+		X[1, :],
+		X[2, :],
+		group=predictions[&quot;Bare K-Means&quot;],
+		legend=false,
+		markersize=3,
+		aspect_ratio=:equal,
+		title=&quot;Bare K-Means&quot;,
+	),
+	scatter(
+		X[1, :],
+		X[2, :],
+		group=predictions[&quot;Local Scaling + Self-Tuning&quot;],
+		legend=false,
+		markersize=3,
+		aspect_ratio=:equal,
+		title=&quot;Local Scaling + Self-Tuning&quot;,
+	),
+	layout=(1, 2),
+	size=(900, 350),
+)</code></pre><img src="4bb998b0.svg" alt="Example block output"/><h2 id="Interpretation"><a class="docs-heading-anchor" href="#Interpretation">Interpretation</a><a id="Interpretation-1"></a><a class="docs-heading-anchor-permalink" href="#Interpretation" title="Permalink"></a></h2><p>This example is intended to show how the package can be used to compare several clustering pipelines on the same labeled dataset.</p><p>The table reports the numeric scores for each method, while the final plot makes it easier to inspect how the predicted labels differ geometrically. In practice, both the affinity construction and the discretization step influence the final partition, so it is useful to evaluate several combinations rather than a single spectral configuration.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../getting_started/">« Getting Started</a><a class="docs-footer-nextpage" href="../manual/datasets/">Datasets »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 10 July 2026 20:44">Friday 10 July 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
