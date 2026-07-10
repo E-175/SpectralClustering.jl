@@ -1,13 +1,18 @@
 """
-    spectral_cluster(X, k; affinity, laplacian, discretizer)
+    spectral_cluster(X, k; affinity, laplacian, discretizer, rng=Random.default_rng())
 
 Perform spectral clustering on data matrix `X` into `k` clusters.
 `X` should be `n_features × n_samples`.
+
+If an `rng` is provided, it is forwarded to the discretization step. This is
+primarily relevant for discretizers with randomized behavior, such as
+`KMeansDiscretization`.
 """
 function spectral_cluster(X::AbstractMatrix, k::Integer; 
                           affinity::AbstractAffinity = RBFKernel(),
                           laplacian::AbstractLaplacian = RandomWalkLaplacian(),
-                          discretizer::AbstractDiscretization = KMeansDiscretization(false))
+                          discretizer::AbstractDiscretization = KMeansDiscretization(false),
+                          rng::AbstractRNG = Random.default_rng())
     
     # 1. Build Similarity Graph
     W = compute_affinity(X, affinity)
@@ -19,7 +24,7 @@ function spectral_cluster(X::AbstractMatrix, k::Integer;
     V = compute_eigenvectors(L, k) 
     
     # 4. Discretize into labels
-    labels = discretize(V, discretizer, k=k)
+    labels = discretize(rng, V, discretizer, k=k)
     
     return labels
 end

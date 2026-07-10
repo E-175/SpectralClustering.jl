@@ -13,6 +13,7 @@ using Random
             affinity=RBFKernel(1.0),
             laplacian=SymmetricLaplacian(),
             discretizer=SVDDiscretization(),
+            rng=MersenneTwister(1234),
         )
 
         @test length(labels) == 4
@@ -23,14 +24,14 @@ using Random
     end
 
     @testset "spectral_cluster supports all end-to-end variants" begin
-        rng = MersenneTwister(1234)
-        X, _ = make_moons(rng, 100; noise=0.05)
+        dataset_rng = MersenneTwister(1234)
+        X, _ = make_moons(dataset_rng, 100; noise=0.05)
 
         variants = [
-            (RBFKernel(1.0), UnnormalizedLaplacian(), KMeansDiscretization(false, false, 7)),
-            (RBFKernel(1.0), RandomWalkLaplacian(), KMeansDiscretization(true, false, 7)),
+            (RBFKernel(1.0), UnnormalizedLaplacian(), KMeansDiscretization(false, false)),
+            (RBFKernel(1.0), RandomWalkLaplacian(), KMeansDiscretization(true, false)),
             (RBFKernel(1.0), SymmetricLaplacian(), SVDDiscretization()),
-            (LocalScaling(7), UnnormalizedLaplacian(), KMeansDiscretization(false, true, 7)),
+            (LocalScaling(7), UnnormalizedLaplacian(), KMeansDiscretization(false, true)),
             (LocalScaling(7), RandomWalkLaplacian(), SelfTuningDiscretization()),
             (LocalScaling(7), SymmetricLaplacian(), SVDDiscretization()),
         ]
@@ -42,10 +43,37 @@ using Random
                 affinity=affinity,
                 laplacian=laplacian,
                 discretizer=discretizer,
+                rng=MersenneTwister(4321),
             )
 
             @test length(labels) == size(X, 2)
             @test sort(unique(labels)) == [1, 2]
         end
     end
+
+    @testset "spectral_cluster rejects invalid k" begin
+    # This test checks that invalid cluster counts are rejected through the
+    # public API, not only in lower-level helper functions.
+
+        X = [-1.0 -0.9 1.0 0.9;
+              0.0  0.1 0.0 -0.1]
+
+        @test_throws ArgumentError spectral_cluster(
+            X,
+            0;
+            affinity=RBFKernel(0.5),
+            laplacian=RandomWalkLaplacian(),
+            discretizer=KMeansDiscretization(false, false, 7),
+        )
+
+        @test_throws ArgumentError spectral_cluster(
+            X,
+            5;
+            affinity=RBFKernel(0.5),
+            laplacian=RandomWalkLaplacian(),
+            discretizer=KMeansDiscretization(false, false, 7),
+        )
+    end
+
+
 end
