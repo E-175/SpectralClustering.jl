@@ -33,7 +33,7 @@ using LinearAlgebra
 
 ```@example benchmark
 function load_jain_dataset()
-	path = joinpath(dirname(dirname(@__DIR__)), "benchmark", "jain.txt")
+	path = joinpath(@__DIR__, "data", "jain.txt")
 	raw = readdlm(path)
 
 	X = Matrix{Float64}(raw[:, 1:2])'
