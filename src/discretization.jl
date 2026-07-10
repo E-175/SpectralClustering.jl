@@ -1,11 +1,11 @@
-using LinearAlgebra: I
-using Optim: optimize, BFGS, minimizer
-using ForwardDiff: gradient!
-
 # Fallback method
 function discretize(V::AbstractMatrix, method::AbstractDiscretization; k::Union{Int, Nothing}=nothing)
     error("Discretization method $(typeof(method)) is not implemented yet.")
 end
+
+# Generic RNG-aware wrapper for discretizers without randomized behavior.
+discretize(rng::AbstractRNG, V::AbstractMatrix, method::AbstractDiscretization; kwargs...) =
+    discretize(V, method; kwargs...)
 
 """
     discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
@@ -24,6 +24,7 @@ length before K-Means is applied. This is used for variants such as the
 Ng-Jordan-Weiss normalized spectral clustering method.
 
 # Arguments
+- `rng`: Random number generator for reproducibility.
 - `V`: Spectral embedding matrix with one column per sample (features × samples).
 - `method`: K-Means discretization configuration.
 - `k`: Number of clusters.
@@ -35,6 +36,7 @@ A vector of cluster labels with one label per sample.
 - `ArgumentError` if `k` is not provided.
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 - `ArgumentError` if row normalization is requested and at least one row has norm zero.
+- `ArgumentError` if manual K-Means implementation is requested and V indexing is not one-based.
 """
 function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
     # The K-Means expects a fixed number of clusters.
@@ -70,6 +72,7 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
     # Manual implementation of KMeans
     if method.use_manual_implementation
         
+        Base.require_one_based_indexing(V)
         # Set timeout to avoid potential endless loops
         timeout = 1000
         # Select k random points from the relevant dataset as starting centroids
@@ -111,7 +114,7 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
     else
     
     # Clustering.kmeans expects data in the format features × samples.
-    result = kmeans(embedding, k)
+    result = kmeans(embedding, k; rng=rng)
 
     # Return one cluster label per sample.
     return assignments(result)
@@ -191,6 +194,10 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
     
     # Once we have found the best k and its rotated Z, assign the final labels
     return get_cluster_assignments(best_Z)
+end
+
+function discretize(rng::AbstractRNG, V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
+    return discretize(V, method; k=k)
 end
 
 # ---------------------------------------------------------

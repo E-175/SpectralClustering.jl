@@ -6,10 +6,7 @@
 [![Aqua QA](https://juliatesting.github.io/Aqua.jl/dev/assets/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 A Julia package for performing non-convex and non-linearly separable spectral clustering. This package is built with a highly modular pipeline, allowing you to seamlessly swap out different Affinities, Graph Laplacians, and Discretization algorithms.
-> [!WARNING]
-> CHANGES HOW RNG IS SEEDED
-> INCOMPATIBLE WITH THE DISCRETIZATION TEST
-> DO NOT MERGE UNTIL TEST IS UPDATED OR CHANGES TO RNG ARE REMOVED
+
 ## Installation
 
 To install and use this package, run the following in the Julia REPL (press `]` to enter package mode):

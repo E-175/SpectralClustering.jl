@@ -5,12 +5,13 @@ using Random
 struct DummyDiscretization <: AbstractDiscretization end
 
 @testset "Discretization" begin
+
+
     @testset "KMeansDiscretization constructor" begin
         method = KMeansDiscretization(true)
 
         @test method.normalize_samples === true
         @test method.use_manual_implementation === false
-        @test isnothing(method.seed)
     end
 
     @testset "KMeansDiscretization validation" begin
@@ -18,26 +19,27 @@ struct DummyDiscretization <: AbstractDiscretization end
         V = [1.0 1.0 0.0 0.0;
              0.0 0.0 1.0 1.0]
 
-        @test_throws ArgumentError discretize(V, method)
-        @test_throws ArgumentError discretize(V, method; k=0)
-        @test_throws ArgumentError discretize(V, method; k=5)
-        @test_throws ArgumentError discretize(zeros(0, 4), method; k=1)
+        rng = MersenneTwister(42)
+        @test_throws ArgumentError discretize(rng, V, method)
+        @test_throws ArgumentError discretize(rng, V, method; k=0)
+        @test_throws ArgumentError discretize(rng, V, method; k=5)
+        @test_throws ArgumentError discretize(rng, zeros(0, 4), method; k=1)
     end
 
     @testset "KMeansDiscretization normalization validation" begin
-        method = KMeansDiscretization(true, false, 7)
+        method = KMeansDiscretization(true, false)
         V = [1.0 0.0 1.0;
              0.0 0.0 1.0]
-
-        @test_throws ArgumentError discretize(V, method; k=2)
+        rng = MersenneTwister(42)
+        @test_throws ArgumentError discretize(rng, V, method; k=2)
     end
 
     @testset "KMeansDiscretization clustering" begin
         V = [3.0 3.1 -3.0 -3.1;
              0.0 0.1  0.0 -0.1]
-
-        method = KMeansDiscretization(false, false, 11)
-        labels = discretize(V, method; k=2)
+        rng = MersenneTwister(42)
+        method = KMeansDiscretization(false, false)
+        labels = discretize(rng, V, method; k=2)
 
         @test length(labels) == 4
         @test labels[1] == labels[2]
@@ -50,9 +52,9 @@ struct DummyDiscretization <: AbstractDiscretization end
     @testset "KMeansDiscretization manual implementation" begin
         V = [2.0 2.2 -2.0 -2.2;
              0.0 0.1  0.0 -0.1]
-
-        method = KMeansDiscretization(false, true, 19)
-        labels = discretize(V, method; k=2)
+        rng = MersenneTwister(42)
+        method = KMeansDiscretization(false, true)
+        labels = discretize(rng, V, method; k=2)
 
         @test length(labels) == 4
         @test labels[1] == labels[2]
@@ -63,13 +65,11 @@ struct DummyDiscretization <: AbstractDiscretization end
     @testset "Discretization fallback" begin
         V = [1.0 0.0;
              0.0 1.0]
-
         @test_throws ErrorException discretize(V, DummyDiscretization())
     end
 
     @testset "SVDDiscretization" begin
         method = SVDDiscretization()
-        
         # Test input validation
         V_dummy = rand(MersenneTwister(21), 2, 5)
         
