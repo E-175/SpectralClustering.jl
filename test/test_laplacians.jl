@@ -357,6 +357,16 @@ end
         @test Lrw ≈ expected
     end
 
+     @testset "preserves floating input type" begin
+          W = Float32[0 2 1;
+                         2 0 3;
+                         1 3 0]
+
+          Lrw = compute_laplacian(W, RandomWalkLaplacian())
+
+          @test eltype(Lrw) == Float32
+     end
+
     @testset "rejects non-square affinity matrix" begin
         # An affinity matrix must be square because it stores pairwise
         # similarities between the same set of samples.
@@ -404,4 +414,14 @@ end
 
         @test_throws ArgumentError compute_laplacian(W_zero_degree, RandomWalkLaplacian())
     end
+end
+
+@testset "SymmetricLaplacian preserves floating input type" begin
+     W = Float32[0 2 1;
+                    2 0 3;
+                    1 3 0]
+
+     Lsym = compute_laplacian(W, SymmetricLaplacian())
+
+     @test eltype(Lsym) == Float32
 end

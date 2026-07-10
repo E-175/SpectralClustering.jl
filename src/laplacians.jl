@@ -129,8 +129,8 @@ function compute_laplacian(W::AbstractMatrix, ::RandomWalkLaplacian)
     # This computes D⁻¹W without explicitly building or inverting D.
     normalized_W = W ./ degrees
 
-    # Build L_rw = I - D⁻¹W.
-    return Matrix{Float64}(I, n, n) - normalized_W
+    # Build L_rw = I - D⁻¹W in the normalized matrix element type.
+    return Matrix{eltype(normalized_W)}(I, n, n) - normalized_W
 
 end
 
@@ -151,13 +151,10 @@ end
 
         W being the input Matrix (in our case the affinity Matrix) 
 
-    
 # Arguments
 - `W`: Input matrix. In our case an affinity Matrix in which entry W[i,j] describes how similar points i and j are
     W has to be square and symmetric and must not contain any negative values. Furthermore it must not contain zero degree nodes.
 - `::SymmetricLaplacian`: Selects the symmetric normalized Laplacian.
-    
-
 
 # Returns
 The symmetric normalized Laplacian `L`.
@@ -165,8 +162,6 @@ The symmetric normalized Laplacian `L`.
 The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of AbstractMatrix.
     In our implementation the function will always be called with an affinity matrix of type Matrix{Float64}.
     In such a case the output will also be of that type.
-    
-
 
 # Throws
 - `ArgumentError` if `W` is not square.
@@ -193,6 +188,7 @@ function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
     #Calculate D^{-1/2}, with D being the degree Matrix
     D_inverse_squareroot = Diagonal(1 ./ sqrt.(degrees))
     #Calculate the symmetric normalized Laplacian L_sym as L_sym = I - D^{-1/2} W D^{-1/2}
-    L_sym = I - D_inverse_squareroot * W * D_inverse_squareroot
+    normalized_W = D_inverse_squareroot * W * D_inverse_squareroot
+    L_sym = Matrix{eltype(normalized_W)}(I, n, n) - normalized_W
     return L_sym
 end

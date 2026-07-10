@@ -63,7 +63,7 @@ using Random
             0;
             affinity=RBFKernel(0.5),
             laplacian=RandomWalkLaplacian(),
-            discretizer=KMeansDiscretization(false, false, 7),
+            discretizer=KMeansDiscretization(false, false),
         )
 
         @test_throws ArgumentError spectral_cluster(
@@ -71,7 +71,7 @@ using Random
             5;
             affinity=RBFKernel(0.5),
             laplacian=RandomWalkLaplacian(),
-            discretizer=KMeansDiscretization(false, false, 7),
+            discretizer=KMeansDiscretization(false, false),
         )
     end
 

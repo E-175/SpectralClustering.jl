@@ -55,7 +55,7 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
     n_eigenvectors >= 1 || throw(ArgumentError("The spectral embedding must contain at least one eigenvector."))
 
     # Work on a floating-point copy so the input matrix is not modified.
-    embedding = Matrix{Float64}(V)
+    embedding = Matrix{float(eltype(V))}(V)
     
     if method.normalize_samples
         # Compute the Euclidean norm of each column.
@@ -77,15 +77,15 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
         # Set timeout to avoid potential endless loops
         timeout = 1000
         # Select k random points from the relevant dataset as starting centroids
-        current_centroids = V[:,randperm(rng,size(V,2))[1:k]]
+        current_centroids = embedding[:, randperm(rng, n_samples)[1:k]]
         # This vector is going to contain the number of the centroid that is nearest to it
         # That number is going to be assigned at the start of every iteration of the loop
-        nearest_centroids = zeros(Int,size(V,2))
+        nearest_centroids = zeros(Int, n_samples)
         for _ in 1:timeout
             # Calculate the distance of every datapoint to every current centroid
             # Currently uses euclidian distance / L2 Norm
             # Matrix contains one row for every datapoint and one column for every centroid (k)
-            distances_matrix = [norm(V[:,x] - current_centroids[:,y]) for x = 1:size(V,2), y = 1:k]
+            distances_matrix = [norm(embedding[:, x] - current_centroids[:, y]) for x = 1:n_samples, y = 1:k]
             # Select the column index of the field containing the lowest entry for every row
             # This is the number of the centroid that is closest to that datapoint
             new_nearest_centroids = vec([i[2] for i in argmin(distances_matrix,dims=2)])
@@ -100,13 +100,13 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
             # Iterate over all centroids
             for current_cluster_index in 1:k
                 # Filter all datapoints that are assigned to the current centroid, i.e. the current cluster
-                current_cluster = V[:,nearest_centroids .== current_cluster_index]
+                current_cluster = embedding[:, nearest_centroids .== current_cluster_index]
                 # If the current cluster is empty move its centroid to a random datapoint
                 if isempty(current_cluster)
-                    current_centroids[:,current_cluster_index] = V[:,rand(rng,1:size(V,2))]
+                    current_centroids[:, current_cluster_index] = embedding[:, rand(rng, 1:n_samples)]
                 else
                     # Otherwise calculate the mean of all datapoints in the cluster and move centroid
-                    current_centroids[:,current_cluster_index] = vec(mean(current_cluster,dims=2))
+                    current_centroids[:, current_cluster_index] = vec(mean(current_cluster, dims=2))
                 end
             end
         end
@@ -126,7 +126,7 @@ end
 
 
 # Fallback wrapper if RNG is not provided
-discretize(V::AbstractMatrix, method::KMeansDiscretization; kwargs...) = discretize(Random.default_rng(), V, method; kwargs...)
+discretize(V::AbstractMatrix, method::KMeansDiscretization; kwargs...) = discretize(default_rng(), V, method; kwargs...)
 
 
 # ---------------------------------------------------------
@@ -172,7 +172,7 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
     end
     
     # Case 2: Self-Tuning (Find the optimal 'k' automatically)
-    best_cost = Inf
+    best_cost = oftype(float(zero(eltype(V_work))), Inf)
     best_k = 2
     best_Z = V[:, 1:2]
     
@@ -215,7 +215,7 @@ function calculate_alignment_cost(Z::AbstractMatrix)
     for i in 1:n_samples
         # Find the maximum squared value in the row (M_i^2)
         # We use eps() to prevent division by zero in edge cases
-        max_val_sq = maximum(abs2, Z[i, :]) + eps(Float64)
+        max_val_sq = maximum(abs2, Z[i, :]) + eps(float(eltype(Z)))
         
         for j in 1:c_clusters
             cost += (Z[i, j]^2) / max_val_sq
@@ -274,7 +274,7 @@ function optimize_rotation(V_subset::AbstractMatrix)
     
     # We need C(C-1)/2 angles for a full rotation matrix in C dimensions
     num_thetas = div(c_clusters * (c_clusters - 1), 2)
-    initial_thetas = zeros(num_thetas)
+    initial_thetas = zeros(float(eltype(V_subset)), num_thetas)
     
     # The objective function to minimize
     function objective(thetas)
@@ -353,10 +353,11 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
     1 <= k <= n_samples || throw(ArgumentError("k must be between 1 and the number of samples."))
 
     # Z* is N x K. The input V is K x N.
-    Z_star = Matrix{Float64}(V')
+    T = float(eltype(V))
+    Z_star = Matrix{T}(V')
     
     # Normalization (Step 3)
-    X_tilde_star = zeros(n_samples, k)
+    X_tilde_star = zeros(T, n_samples, k)
     row_norms = sqrt.(sum(abs2, Z_star, dims=2))
     for i in 1:n_samples
         if row_norms[i] > 0
@@ -365,13 +366,13 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
     end
 
     # Initialization of R* (Step 4)
-    R_star = zeros(k, k)
+    R_star = zeros(T, k, k)
     
     # Pick a fixed starting row (e.g. 1) for reproducibility instead of random
     initial_idx = 1
     R_star[:, 1] = X_tilde_star[initial_idx, :]
     
-    c = zeros(n_samples)
+    c = zeros(T, n_samples)
     for j in 2:k
         c .+= abs.(X_tilde_star * R_star[:, j-1])
         idx = argmin(c)
@@ -379,7 +380,7 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
     end
 
     # Convergence variables
-    phi_star = 0.0
+    phi_star = zero(T)
     X_star = zeros(Int, n_samples, k)
     labels = zeros(Int, n_samples)
     
@@ -401,7 +402,7 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
         
         # Check convergence
         phi = sum(svd_result.S)
-        if abs(phi - phi_star) < eps(Float64)
+        if abs(phi - phi_star) < eps(typeof(phi))
             break
         end
         

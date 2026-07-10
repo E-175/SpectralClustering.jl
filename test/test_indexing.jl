@@ -61,7 +61,7 @@ using SpectralClustering
 
         @test_throws ArgumentError discretize(
             V,
-            KMeansDiscretization(false, false, 7);
+            KMeansDiscretization(false, false);
             k=2,
         )
     end
