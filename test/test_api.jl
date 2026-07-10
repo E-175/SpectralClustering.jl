@@ -50,4 +50,30 @@ using Random
             @test sort(unique(labels)) == [1, 2]
         end
     end
+
+    @testset "spectral_cluster rejects invalid k" begin
+    # This test checks that invalid cluster counts are rejected through the
+    # public API, not only in lower-level helper functions.
+
+        X = [-1.0 -0.9 1.0 0.9;
+              0.0  0.1 0.0 -0.1]
+
+        @test_throws ArgumentError spectral_cluster(
+            X,
+            0;
+            affinity=RBFKernel(0.5),
+            laplacian=RandomWalkLaplacian(),
+            discretizer=KMeansDiscretization(false, false, 7),
+        )
+
+        @test_throws ArgumentError spectral_cluster(
+            X,
+            5;
+            affinity=RBFKernel(0.5),
+            laplacian=RandomWalkLaplacian(),
+            discretizer=KMeansDiscretization(false, false, 7),
+        )
+    end
+
+
 end
