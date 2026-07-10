@@ -191,8 +191,8 @@ function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
     all(degrees .> 0) || throw(ArgumentError("SymmetricLaplacian is not defined for zero-degree nodes."))
 
     #Calculate D^{-1/2}, with D being the degree Matrix
-    DInverseSquareRoot = Diagonal(1 ./ sqrt.(degrees))
+    D_inverse_squareroot = Diagonal(1 ./ sqrt.(degrees))
     #Calculate the symmetric normalized Laplacian L_sym as L_sym = I - D^{-1/2} W D^{-1/2}
-    L_sym = I - DInverseSquareRoot * W * DInverseSquareRoot
+    L_sym = I - D_inverse_squareroot * W * D_inverse_squareroot
     return L_sym
 end

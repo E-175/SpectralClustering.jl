@@ -8,8 +8,8 @@ abstract type AbstractDiscretization end
     RBFKernel(; sigma=1.0)
 Gaussian kernel for affinity. `sigma` must be positive.
 """
-Base.@kwdef struct RBFKernel <: AbstractAffinity 
-    sigma::Float64 = 0.1
+Base.@kwdef struct RBFKernel{T<:Real} <: AbstractAffinity
+    sigma::T = 1.0
 end
 
 """
@@ -39,11 +39,10 @@ If `normalize_samples` is true, eigenvectors are normalized per sample before K-
 struct KMeansDiscretization <: AbstractDiscretization 
     normalize_samples::Bool
     use_manual_implementation::Bool
-    seed::Union{Int, Nothing}
 end
 
 function KMeansDiscretization(normalize_samples::Bool)
-    return KMeansDiscretization(normalize_samples,false,nothing)
+    return KMeansDiscretization(normalize_samples,false)
 end
 
 """ Zelnik-Manor & Perona method (Automatic k, cost minimization) """

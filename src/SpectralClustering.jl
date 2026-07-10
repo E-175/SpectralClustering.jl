@@ -1,9 +1,12 @@
 module SpectralClustering
 
+
 using LinearAlgebra: eigen, Diagonal, I, svd, norm, Symmetric, issymmetric
 using Clustering: kmeans, assignments
-using Random
+using Random: MersenneTwister, AbstractRNG, randn, default_rng, randperm
 using Statistics: mean
+using Optim: optimize, BFGS, minimizer
+using ForwardDiff: gradient!
 
 # Export Types
 export AbstractAffinity, AbstractLaplacian, AbstractDiscretization
