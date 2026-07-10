@@ -8,8 +8,8 @@ abstract type AbstractDiscretization end
     RBFKernel(; sigma=1.0)
 Gaussian kernel for affinity. `sigma` must be positive.
 """
-Base.@kwdef struct RBFKernel <: AbstractAffinity 
-    sigma::Float64 = 0.1
+Base.@kwdef struct RBFKernel{T<:Real} <: AbstractAffinity
+    sigma::T = 1.0
 end
 
 """
