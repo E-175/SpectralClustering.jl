@@ -43,14 +43,26 @@ end
     
     method = SelfTuningDiscretization()
     labels = discretize(V, method; k=2)
+    labels_uint = discretize(V, method; k=UInt8(2))
     
     @test length(labels) == 4
+    @test length(labels_uint) == 4
     # Points 1 and 2 should be in the same cluster
     @test labels[1] == labels[2]
+    @test labels_uint[1] == labels_uint[2]
     # Points 3 and 4 should be in the same cluster
     @test labels[3] == labels[4]
+    @test labels_uint[3] == labels_uint[4]
     # The two clusters should be different
     @test labels[1] != labels[3]
+    @test labels_uint[1] != labels_uint[3]
+end
+
+@testset "Self-Tuning Discretization requires at least two eigenvectors for automatic k" begin
+    V_single = reshape([1.0, 0.5, -0.5, -1.0], 1, :)
+    method = SelfTuningDiscretization()
+
+    @test_throws ArgumentError discretize(V_single, method)
 end
 
 @testset "Self-Tuning Discretization with Rotation Recovery" begin

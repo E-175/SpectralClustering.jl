@@ -24,6 +24,9 @@ struct DummyDiscretization <: AbstractDiscretization end
         @test_throws ArgumentError discretize(rng, V, method; k=0)
         @test_throws ArgumentError discretize(rng, V, method; k=5)
         @test_throws ArgumentError discretize(rng, zeros(0, 4), method; k=1)
+
+        labels = discretize(rng, V, method; k=UInt8(2))
+        @test length(labels) == 4
     end
 
     @testset "KMeansDiscretization normalization validation" begin
@@ -88,16 +91,21 @@ struct DummyDiscretization <: AbstractDiscretization end
                    0.0 0.0 1.0 1.0]
         
         labels = discretize(V_ideal, method; k=2)
+        labels_uint = discretize(V_ideal, method; k=UInt8(2))
         
         @test length(labels) == 4
+        @test length(labels_uint) == 4
         
         # The first two should have the same label
         @test labels[1] == labels[2]
+        @test labels_uint[1] == labels_uint[2]
         
         # The last two should have the same label
         @test labels[3] == labels[4]
+        @test labels_uint[3] == labels_uint[4]
         
         # But they must be different clusters
         @test labels[1] != labels[3]
+        @test labels_uint[1] != labels_uint[3]
     end
 end

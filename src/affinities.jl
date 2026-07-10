@@ -35,8 +35,9 @@ function compute_affinity(X::AbstractMatrix, method::RBFKernel; self_affinity::R
 
     sigma > 0 || throw(ArgumentError("sigma must be positive"))
 
-    # find type T that can hold values from all of these inputs without loss
-    T = float(promote_type(eltype(X), typeof(sigma), typeof(self_affinity)))
+    # Keep the affinity matrix in the data element type when possible and
+    # convert scalar configuration values to match it.
+    T = float(promote_type(eltype(X), typeof(self_affinity)))
     sigma = convert(T, sigma)
     self_affinity = convert(T, self_affinity)
     scale = convert(T, 2) * sigma^2

@@ -1,5 +1,5 @@
 """
-    make_circles([rng::AbstractRNG,] n_samples::Integer=100; noise::Float64=0.0, factor::Float64=0.8)
+    make_circles([rng::AbstractRNG,] n_samples::Integer=100; noise::AbstractFloat=0.0, factor::AbstractFloat=0.8)
 
 Generate a large circle containing a smaller circle in 2D.
 
@@ -56,10 +56,10 @@ function make_circles(rng::AbstractRNG, n_samples::Integer=100; noise::AbstractF
 end
 
 # fallback wrapper if RNG is not provided
-make_circles(n_samples::Int=100; kwargs...) = make_circles(default_rng(), n_samples; kwargs...)
+make_circles(n_samples::Integer=100; kwargs...) = make_circles(default_rng(), n_samples; kwargs...)
 
 """
-    make_moons([rng::AbstractRNG,] n_samples::Integer=100; noise::Float64=0.0)
+    make_moons([rng::AbstractRNG,] n_samples::Integer=100; noise::AbstractFloat=0.0)
 
 Generate two interleaving half circles in 2D.
 
@@ -112,7 +112,7 @@ function make_moons(rng::AbstractRNG, n_samples::Integer=100; noise::AbstractFlo
 end
 
 # fallback wrapper if RNG is not provided
-make_moons(n_samples::Int=100; kwargs...) = make_moons(default_rng(), n_samples; kwargs...)
+make_moons(n_samples::Integer=100; kwargs...) = make_moons(default_rng(), n_samples; kwargs...)
 
 """
     make_blobs([rng::AbstractRNG,] n_samples::Integer=100; centers::Integer=3, cluster_std::Real=1.0, center_box::Tuple{Real, Real}=(-10.0, 10.0))
@@ -167,4 +167,4 @@ function make_blobs(rng::AbstractRNG, n_samples::Integer=100; centers::Integer=3
 end
 
 # fallback wrapper if RNG is not provided
-make_blobs(n_samples::Int=100; kwargs...) = make_blobs(default_rng(), n_samples; kwargs...)
+make_blobs(n_samples::Integer=100; kwargs...) = make_blobs(default_rng(), n_samples; kwargs...)

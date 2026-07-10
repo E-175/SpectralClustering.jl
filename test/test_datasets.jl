@@ -23,6 +23,7 @@ using Random
         @test_throws ArgumentError make_circles(n, factor=-0.5)
         # Test error for invalid n_samples
         @test_throws ArgumentError make_circles(0)
+        @test size(first(make_circles(UInt(10)))) == (2, 10)
 
         # Test noise addition
         X_noisy, _ = make_circles(MersenneTwister(43), n, factor=0.5, noise=0.1)
@@ -67,6 +68,7 @@ using Random
 
         # Test error for invalid n_samples
         @test_throws ArgumentError make_moons(0)
+        @test size(first(make_moons(UInt(10)))) == (2, 10)
     end
 
     @testset "make_blobs" begin
@@ -98,5 +100,6 @@ using Random
 
         # Test error for invalid n_samples
         @test_throws ArgumentError make_blobs(0)
+        @test size(first(make_blobs(UInt(10)))) == (2, 10)
     end
 end

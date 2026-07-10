@@ -1,5 +1,5 @@
 # Fallback method
-function discretize(V::AbstractMatrix, method::AbstractDiscretization; k::Union{Int, Nothing}=nothing)
+function discretize(V::AbstractMatrix, method::AbstractDiscretization; k::Union{Integer, Nothing}=nothing)
     error("Discretization method $(typeof(method)) is not implemented yet.")
 end
 
@@ -8,8 +8,8 @@ discretize(rng::AbstractRNG, V::AbstractMatrix, method::AbstractDiscretization; 
     discretize(V, method; kwargs...)
 
 """
-    discretize(rng::AbstractRNG, V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
-    discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
+    discretize(rng::AbstractRNG, V::AbstractMatrix, method::KMeansDiscretization; k::Union{Integer, Nothing}=nothing)
+    discretize(V::AbstractMatrix, method::KMeansDiscretization; k::Union{Integer, Nothing}=nothing)
 
 Discretize a spectral embedding into cluster labels using K-Means.
 
@@ -40,7 +40,7 @@ A `Vector{Int}` containing one cluster label per sample.
 - `ArgumentError` if the embedding contains no eigenvectors.
 - `ArgumentError` if column normalization is requested and at least one column has norm zero.
 """
-function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretization; k::Union{Int, Nothing}=nothing)
+function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretization; k::Union{Integer, Nothing}=nothing)
     Base.require_one_based_indexing(V)
     # The K-Means expects a fixed number of clusters.
     isnothing(k) && throw(ArgumentError("K-Means requires a specific number of clusters 'k'."))
@@ -55,6 +55,8 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
 
     # The embedding must contain at least one eigenvector.
     n_eigenvectors >= 1 || throw(ArgumentError("The spectral embedding must contain at least one eigenvector."))
+
+    k = Int(k)
 
     # Work on a floating-point copy so the input matrix is not modified.
     embedding = Matrix{float(eltype(V))}(V)
@@ -100,7 +102,7 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
             end
             # Move Centroid of Cluster
             # Iterate over all centroids
-            for current_cluster_index in 1:k
+            for current_cluster_index in 1:k    
                 # Filter all datapoints that are assigned to the current centroid, i.e. the current cluster
                 current_cluster = embedding[:, nearest_centroids .== current_cluster_index]
                 # If the current cluster is empty move its centroid to a random datapoint
@@ -117,7 +119,7 @@ function discretize(rng::AbstractRNG,V::AbstractMatrix, method::KMeansDiscretiza
     else
     
     # Clustering.kmeans expects data in the format features × samples.
-    result = kmeans(embedding, k; rng=rng)
+    result = kmeans(embedding, k; rng=rng)  
 
     # Return one cluster label per sample.
     return assignments(result)
@@ -162,8 +164,9 @@ A `Vector{Int}` of length `n_samples` containing the assigned cluster labels.
 
 # Throws
 - `ArgumentError` if `k` is larger than the number of eigenvectors provided in `V`.
+- `ArgumentError` if `k` is `nothing` and fewer than two eigenvectors are provided in `V`.
 """
-function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
+function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Integer, Nothing}=nothing)
     Base.require_one_based_indexing(V)
     
     # Transpose V from (features × samples) to (samples × features)
@@ -175,10 +178,15 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
         if k > max_clusters
             throw(ArgumentError("k cannot be larger than the number of eigenvectors provided in V"))
         end
+        k = Int(k)
         V_subset = V_work[:, 1:k]
         Z, _ = optimize_rotation(V_subset)
         return get_cluster_assignments(Z)
     end
+
+    max_clusters >= 2 || throw(ArgumentError(
+        "Self-tuning discretization requires at least two eigenvectors when k is not provided."
+    ))
     
     # Case 2: Self-Tuning (Find the optimal 'k' automatically)
     best_cost = oftype(float(zero(eltype(V_work))), Inf)
@@ -204,7 +212,7 @@ function discretize(V::AbstractMatrix, method::SelfTuningDiscretization; k::Unio
     return get_cluster_assignments(best_Z)
 end
 
-function discretize(rng::AbstractRNG, V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Int, Nothing}=nothing)
+function discretize(rng::AbstractRNG, V::AbstractMatrix, method::SelfTuningDiscretization; k::Union{Integer, Nothing}=nothing)
     return discretize(V, method; k=k)
 end
 
@@ -212,8 +220,10 @@ end
 # Helper 1: The Cost Function (Equation 3 from the paper)
 # ---------------------------------------------------------
 """
-Computes the alignment cost J = sum(Z_ij^2 / M_i^2)
-where M_i is the maximum absolute value in row i of Z.
+    calculate_alignment_cost(Z::AbstractMatrix)
+
+Compute the alignment cost `J = sum(Z_ij^2 / M_i^2)`, where `M_i` is the
+maximum absolute value in row `i` of `Z`.
 """
 function calculate_alignment_cost(Z::AbstractMatrix)
     Base.require_one_based_indexing(Z)
@@ -238,7 +248,9 @@ end
 # Helper 1.5: Givens Rotation Builder
 # ---------------------------------------------------------
 """
-Builds a c x c orthogonal rotation matrix from a vector of angles (thetas)
+    make_rotation_matrix(thetas::AbstractVector{T}, c::Integer) where T
+
+Build a `c × c` orthogonal rotation matrix from a vector of angles `thetas`
 using Givens rotations.
 """
 function make_rotation_matrix(thetas::AbstractVector{T}, c::Integer) where T
@@ -268,8 +280,10 @@ end
 # Helper 2: The Gradient Descent (Appendix A from the paper)
 # ---------------------------------------------------------
 """
-Finds the optimal rotation matrix R that aligns the columns of V_subset.
-Returns the rotated matrix Z and its alignment cost.
+    optimize_rotation(V_subset::AbstractMatrix)
+
+Find the optimal rotation matrix `R` that aligns the columns of `V_subset`.
+Return the rotated matrix `Z` together with its alignment cost.
 """
 function optimize_rotation(V_subset::AbstractMatrix)
     Base.require_one_based_indexing(V_subset)
@@ -309,8 +323,10 @@ end
 # Helper 3: Final Non-Maximum Suppression
 # ---------------------------------------------------------
 """
-Takes the optimally rotated matrix Z and assigns cluster labels.
-A point is assigned to cluster c if the maximum value in its row is at column c.
+    get_cluster_assignments(Z::AbstractMatrix)
+
+Assign cluster labels from the optimally rotated matrix `Z`. A point is
+assigned to cluster `c` if the maximum value in its row is at column `c`.
 """
 function get_cluster_assignments(Z::AbstractMatrix)
     Base.require_one_based_indexing(Z)
@@ -331,7 +347,7 @@ end
 # SVD Discretization (Yu & Shi 2003) - AI Generated
 # ---------------------------------------------------------
 """
-    discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
+    discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Integer, Nothing}=nothing)
 
 Discretize a spectral embedding into cluster labels using the optimal multiclass
 discretization method by Yu and Shi (2003).
@@ -352,7 +368,7 @@ A vector of cluster labels with one label per sample.
 - `ArgumentError` if `k` does not equal the number of eigenvectors (rows) in `V`.
 - `ArgumentError` if `k` is smaller than 1 or larger than the number of samples.
 """
-function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, Nothing}=nothing)
+function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Integer, Nothing}=nothing)
     Base.require_one_based_indexing(V)
     
     isnothing(k) && throw(ArgumentError("SVD Discretization requires a specific number of clusters 'k'."))
@@ -360,6 +376,8 @@ function discretize(V::AbstractMatrix, method::SVDDiscretization; k::Union{Int, 
     n_eigenvectors, n_samples = size(V)
     k == n_eigenvectors || throw(ArgumentError("SVD Discretization expects exactly `k` eigenvectors."))
     1 <= k <= n_samples || throw(ArgumentError("k must be between 1 and the number of samples."))
+
+    k = Int(k)
 
     # Z* is N x K. The input V is K x N.
     T = float(eltype(V))

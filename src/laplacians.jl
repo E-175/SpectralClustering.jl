@@ -4,7 +4,7 @@ function compute_laplacian(W::AbstractMatrix, method::AbstractLaplacian)
 end
 
 """
-    function compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
+    compute_laplacian(W::AbstractMatrix, ::UnnormalizedLaplacian)
 
 Computes the unnormalized Laplacian of an input matrix `W`. 
 The unnormalized Laplacian is defined as:
@@ -21,9 +21,9 @@ with
 # Returns
 The unnormalized Laplacian `L`.
 
-The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of AbstractMatrix.
-    In our implementation the function will always be called with an affinity matrix of type Matrix{Float64}.
-    In such a case the output will also be of that type.
+The specific matrix type depends on the input matrix `W` and Julia's linear
+algebra dispatch. The returned object is an `AbstractMatrix` with the same
+shape as `W`.
 
 # Throws
 - `ArgumentError` if `W` is not square.
@@ -136,7 +136,7 @@ end
 
 
 """
-    function compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
+    compute_laplacian(W::AbstractMatrix, ::SymmetricLaplacian)
 
     Computes the symmetric normalized Laplacian of an input matrix `W`. 
 
@@ -159,9 +159,9 @@ end
 # Returns
 The symmetric normalized Laplacian `L`.
 
-The specific type of the Laplacian depends on the type of the input matrix W. It will, however, always be a subtype of AbstractMatrix.
-    In our implementation the function will always be called with an affinity matrix of type Matrix{Float64}.
-    In such a case the output will also be of that type.
+The specific matrix type depends on the input matrix `W` and Julia's linear
+algebra dispatch. The returned object is an `AbstractMatrix` with the same
+shape as `W`.
 
 # Throws
 - `ArgumentError` if `W` is not square.
